@@ -17,6 +17,8 @@ module DltsPublisher
 
   @rstar_password=ARGV[3]
 
+  @json_dir=ARGV[4]||"/home/dlib/ekatep/dlts_viewer_content/books/"
+
   if (ARGV.size<4)
     puts "You must provide collection_path, script(Latin, Arabic, etc), rstar credentials"
     exit
@@ -78,8 +80,7 @@ module DltsPublisher
 
 
 
-  Dir["#{@collection_path}/wip/ie/**/data/*mets.xml"].each do |f|
- # Dir["#{@collection_path}/wip/ie/*.xml"].each do |f|
+  Dir["#{@collection_path}/wip/ie/**/data/*.xml"].each do |f|
        if(options[:start_date]!=nil)
          mtime = File.mtime(file)
        end
@@ -126,8 +127,6 @@ module DltsPublisher
            @handle=file.readline
 
            @mets_file="#{@collection_path}/wip/se/#{@book_id}/data/#{@book_id}_mets.xml"
-           #@mets_file="#{@collection_path}/wip/se/#{@book_id}/#{@book_id}_mets.xml"
-
            if !File.exist?(@mets_file)
              puts "The file #{@mets_file} for the book #{@book_id} doesn't exist"
              exit
@@ -142,7 +141,6 @@ module DltsPublisher
            @rights_file_name=@doc.xpath('//mdRef[@MDTYPE="METSRIGHTS"]/@href').to_s
 
            @rights_file="#{@collection_path}/wip/se/#{@book_id}/data/#{@rights_file_name}"
-           #@rights_file="#{@collection_path}/wip/se/#{@book_id}/#{@rights_file_name}"
 
            if !File.exist?(@rights_file)
              puts "The file #{@rights_file} for the book #{@book_id} doesn't exist"
@@ -184,8 +182,6 @@ module DltsPublisher
 
            puts @rep_image
            @mods_file="#{@collection_path}/wip/se/#{@book_id}/data/#{@mods_file_name}"
-           #@mods_file="#{@collection_path}/wip/se/#{@book_id}/#{@mods_file_name}"
-
            if !File.exist?(@mods_file)
              puts "The file #{@mods_file} for the book #{@book_id} doesn't exist"
              exit
@@ -237,7 +233,7 @@ module DltsPublisher
                        :pages=>{:page=>@mods_doc.generate_single_pages(@mets_parser,@book_id)},
                        :stitched=>{:page=>@mods_doc.generate_double_pages(@page_count,@book_id)}}
 
-           fJson = File.open("/home/dlib/ekatep/dlts_viewer_content/books/#{@book_id}.#{@entity_language}.json","w")
+           fJson = File.open("#{@json_dir}/#{@book_id}.#{@entity_language}.json","w")
            fJson.write(book_data.to_json)
            fJson.close
            puts book_data.to_json

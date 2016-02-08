@@ -1,0 +1,350 @@
+require 'rubygems'
+require 'nokogiri'
+require 'json'
+require 'faraday'
+require 'ISO-639'
+require 'date'
+require 'digest'
+
+
+class MetadataJson
+
+  def get_title(mods_doc, script)
+    xpath="/mods/titleInfo[not(@type=\"uniform\") "
+    if (script!="Latn")
+      xpath +=" and @script=\"#{script}\"" unless script.nil?
+    else
+      xpath += " and (not(@script)"
+      xpath += " or  @script=\"#{script}\"" unless script.nil?
+      xpath += ")"
+    end
+    xpath += "]"
+    title = mods_doc.xpath("#{xpath}/nonSort/text()").to_s || ""
+    title += " " if !title.nil? && title !~ /\s+$/
+    title += mods_doc.xpath("#{xpath}/title/text()").first.to_s
+
+  end
+
+  def get_subtitle(mods_doc, script)
+    xpath = "//titleInfo["
+    if (script!="Latn")
+      xpath +=" @script=\"#{script}\"" unless script.nil?
+    else
+      xpath += " (not(@script)"
+      xpath += " or  @script=\"#{script}\"" unless script.nil?
+      xpath += ")"
+    end
+    xpath += "]/subTitle"
+    mods_doc.xpath("#{xpath}/text()").to_s
+  end
+
+  def get_authors(mods_doc, script)
+    @authors = []
+    xpath = "//mods/name[@type='personal'"
+    if (script!="Latn")
+      xpath +=" and @script=\"#{script}\"" unless script.nil?
+    else
+      xpath += " and (not(@script)"
+      xpath += " or  @script=\"#{script}\"" unless script.nil?
+      xpath += ")"
+    end
+    xpath += "]"
+    @names = mods_doc.xpath(xpath)
+    @names.each do |node|
+      name_parts=node.xpath('./namePart[not(@type="date")]/text()').to_s.strip
+      date=node.xpath('./namePart[@type="date"]/text()').to_s.strip
+      role=node.xpath('./role/roleTerm[@type="text"]/text()').to_s.strip
+      author=[name_parts, date, role].reject(&:empty?).join(', ')
+      puts "author: #{author}"
+      @authors<<author
+    end
+    puts "#{@authors}.to_s"
+    return @authors
+  end
+
+  def get_publisher(mods_doc, script)
+    xpath = "//originInfo["
+    if (script!='Latn')
+      xpath +="@script=\"#{script}\"" unless script.nil?
+    else
+      xpath += " not(@script) or  @script=\"#{script}\""
+    end
+    xpath += "]/publisher"
+    mods_doc.xpath("#{xpath}/text()").first
+  end
+
+  def get_call_number(mods_doc, script)
+    xpath="//classification[\@authority='lcc']"
+    mods_doc.xpath("#{xpath}/text()").to_s
+  end
+
+  def get_description(mods_doc, script)
+    xpath="//abstract"
+    mods_doc.xpath("#{xpath}/text()").to_s
+  end
+
+  def get_language(mods_doc)
+    code=get_language_code(mods_doc)
+    puts code
+    if(code.nil?)
+      return ISO_639.find_by_code("eng").english_name
+    else
+      ISO_639.find_by_code("#{code}").english_name
+    end
+  end
+
+  def get_language_code(mods_doc)
+    xpath="//language/languageTerm[@authority='iso639-2b' and @type='code']/text()"
+    mods_doc.xpath("#{xpath}").first
+  end
+
+  def get_number(mods_doc)
+    xpath="//physicalDescription/extent"
+    physDesc=mods_doc.xpath("#{xpath}/text()").to_s
+  end
+
+  def get_subject(mods_doc, script)
+    subjects=[]
+
+    xpath = "//subject[@script='#{script}' "
+    xpath += "or not(@script)" if script=="Latn"
+    xpath += "]"
+
+    mods_doc.xpath(xpath).each do |node|
+        subject=get_leaf_vals(node,[])
+        puts "subj: #{subject}"
+        subjects<<subject.join(' -- ') unless subject.empty?||subject.size==0||subject==""
+    end
+
+    return subjects.uniq
+    end
+
+    def get_leaf_vals (subj_element,values)
+    children = subj_element.elements
+    if (!children.empty?)
+          children.each do |child |
+              if (child.name!="geographicCode")
+                    get_leaf_vals(child,values)
+              end
+          end
+     else
+       val = subj_element.text()
+       values<<val unless val==""||val.nil?
+    end
+    return values
+   end
+
+  def get_publication_location(mods_doc, script)
+    xpath = "//originInfo["
+    if (script!="Latn")
+      xpath +=" @script=\"#{script}\"" unless script.nil?
+    else
+      xpath += " (not(@script)"
+      xpath += " or  @script=\"#{script}\"" unless script.nil?
+      xpath += ")"
+    end
+    xpath += "]/place/placeTerm[\@type='text']"
+    mods_doc.xpath("#{xpath}/text()").to_s
+  end
+
+  def get_pub_date_string(mods_doc, script)
+    xpath = "//originInfo["
+    if (script!="Latn")
+      xpath +=" @script=\"#{script}\"" unless script.nil?
+    else
+      xpath += " (not(@script)"
+      xpath += " or  @script=\"#{script}\"" unless script.nil?
+      xpath += ")"
+    end
+    xpath +="]/dateIssued[not(@encoding='marc')]"
+    date =mods_doc.xpath("#{xpath}/text()").to_s
+    puts "date: #{date} "
+    return "" if date.nil?
+    date.gsub(/u/, "0")
+    date.gsub(/]/, "")
+    date.ljust(4,'0')
+    return date
+    end
+
+  def get_pub_date(date, mods_doc, script)
+     return "" if (date=="")
+     puts "date_sort: #{date} "
+     return date if(Date.new(date.to_i)).gregorian?
+
+     xpath = "//originInfo["
+     if (script!="Latn")
+       xpath +=" @script=\"#{script}\"" unless script.nil?
+     else
+       xpath += " (not(@script)"
+       xpath += " or  @script=\"#{script}\"" unless script.nil?
+       xpath += ")"
+     end
+     xpath +="]/dateIssued[(@encoding='marc')]"
+     date_marc =mods_doc.xpath("#{xpath}/text()").to_s
+     return date_marc if(Date.new(date_marc.to_i)).gregorian?
+
+     xpath = "//originInfo["
+     if (script!="Latn")
+       xpath +=" @script=\"#{script}\"" unless script.nil?
+     else
+       xpath += " (not(@script)"
+       xpath += " or  @script=\"#{script}\"" unless script.nil?
+       xpath += ")"
+     end
+     xpath +="]/dateIssued[point='start']"
+      date_marc_start =mods_doc.xpath("#{xpath}/text()").to_s
+     return date_marc_start if(Date.new(date_marc_start.to_i)).gregorian?
+
+     date_ajust=date[/[.*]/]
+     return date_ajust if (Date.new(date_ajust.to_i)).gregorian?
+     return ""
+  end
+
+     def get_multivolume(id, volume, volume_str, collection_id, partner_id, script, multi_vol, rstar_username, rstar_password)
+       if (script=="Latn"&&multi_vol)
+         [
+             {
+                 :identifier => "#{id}",
+                 :volume_number => "#{volume}",
+                 :volume_number_str => "#{volume_str}",
+                 :collection => [get_collection(collection_id, partner_id, rstar_username, rstar_password)[0]],
+                 :isPartOf => [
+                     {
+                         :title => "Multi-Volume #{id}",
+                         :type => "dlts_multivol",
+                         :language => "und",
+                         :identifier => "#{id}",
+                         :ri => nil
+                     }
+                 ]
+             }
+         ]
+       else
+         return ""
+       end
+     end
+
+     def generate_single_pages(parser, book_id)
+       single_pages=[]
+       map=parser.for_tag(:div).with_attributes({:TYPE => "INTELLECTUAL_ENTITY"}).first
+       map['div'].each do |page|
+         label=page.attributes["ID"].gsub('s-', '')
+         order=page.attributes["ORDER"].to_i
+         page= {:isPartOf => book_id, :sequence => [order], :realPageNumber => order,
+                :cm => {:uri => "fileserver://books/#{book_id}/#{label}_d.jp2", :width => "", :height => "", :levels => "",
+                        :dwtLevels => "", :compositingLayerCount => "", :timestamp => Time.now().to_i.to_s}}
+         single_pages<<page
+       end
+       return single_pages
+     end
+
+     def generate_double_pages(number_of_pages, book_id)
+       double_pages=[]
+       i=0
+       while (i < number_of_pages) do
+         is_cover_or_back= (i==0||i==number_of_pages-1) ? :true : false
+
+         left_img_num = i + 1
+         right_img_num =i
+         if (is_cover_or_back)
+           right_img_num = (i + 1)
+           i+=1
+         else
+           right_img_num = i + 2
+           i += 2
+         end
+         stitch_index = "#{left_img_num}-#{right_img_num}"
+
+         left_page_num = left_img_num
+         right_page_num = right_img_num
+
+         stitch_file ="#{book_id}_2up_#{left_img_num.to_s.rjust(4, '0')}_#{right_img_num.to_s.rjust(4, '0')}"
+
+         page= {:isPartOf => book_id, :sequence => [left_img_num, right_img_num], :realPageNumber => [left_img_num, right_img_num],
+                :cm => {:uri => "fileserver://books/#{book_id}/#{stitch_file}.jp2", :width => "", :height => "", :levels => "",
+                        :dwtLevels => "", :compositingLayerCount => "", :timestamp => Time.now().to_i.to_s}}
+         double_pages<<page
+       end
+       return double_pages
+     end
+
+     def get_series(mods_doc, collection_id, partner_id, book_id, script, rstart_username, rstar_password)
+       if (script=="Latn")
+         xpath="//relatedItem[@type='series']/titleInfo[@script='#{script}' "
+         xpath+=" or not(@script) " if script=="Latn"
+         xpath+="]/title/text()"
+         titles = mods_doc.xpath(xpath)
+         serieses_str=[]
+         titles.each do |title|
+           serieses_str<<title.to_s.split(";")
+         end
+         serieses=[]
+         serieses_str.each do |series|
+           series_id=Digest::MD5.hexdigest(series[0])
+           data= {
+               :identifier => "series_#{book_id}_#{series_id}",
+               :type => 'dlts_series_book',
+               :title => series[0],
+               :volume_number => "#{series[1]}",
+               :collection => [get_collection(collection_id, partner_id, rstart_username, rstar_password)[0]],
+               :isPartOf => [
+                   {
+                       :title => series[0],
+                       :type => "dlts_series",
+                       :language => "und",
+                       :identifier => "series_#{series_id}",
+                       :ri => nil
+                   }
+               ]
+           }
+           serieses<<data
+         end
+         return serieses
+       else
+         return ""
+       end
+     end
+
+     def get_collection(ids, partner_id, rstar_username, rstar_password)
+       cols=[]
+       puts partner_id
+       @conn = Faraday.new(:url => 'https://rsbe.dlib.nyu.edu')
+       @conn.basic_auth(rstar_username, rstar_password)
+       ids.each do |id|
+         puts "api/v0/colls/#{id}"
+         response=@conn.get "api/v0/colls/#{id}"
+         col=JSON.parse(response.body).to_hash
+         cols<<[{
+                    :title => "#{col["name"]}",
+                    :type => "dlts_collection",
+                    :language => "und",
+                    :identifier => "#{id}",
+                    :code => "#{col["code"]}",
+                    :name => "#{col["name"]}",
+                    :partner => get_partner(partner_id, rstar_username, rstar_password)[0]
+                }]
+       end
+     end
+
+     def get_partner(partner_id, rstar_username, rstar_password)
+       @conn = Faraday.new(:url => 'https://rsbe.dlib.nyu.edu')
+       @conn.basic_auth(rstar_username, rstar_password)
+       response=@conn.get "api/v0/partners/#{partner_id}"
+       partner=JSON.parse(response.body).to_hash
+
+       if partner.has_key?("error")
+         response=@conn.get "api/v0/providers/#{partner_id}"
+         partner=JSON.parse(response.body).to_hash
+       end
+       [{
+            :title => "#{partner["name"]}",
+            :type => "dlts_partner",
+            :language => "und",
+            :identifier => "#{partner_id}",
+            :code => "#{partner["code"]}",
+            :name => "#{partner["name"]}"
+        }]
+
+     end
+
+end

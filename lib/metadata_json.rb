@@ -2,7 +2,7 @@ require 'rubygems'
 require 'nokogiri'
 require 'json'
 require 'faraday'
-require 'ISO-639'
+require 'iso-639'
 require 'date'
 require 'digest'
 
@@ -161,6 +161,7 @@ class MetadataJson
     puts "date: #{date} "
     return "" if date.nil?
     date.gsub(/u/, "0")
+    date.gsub(/\[/, "")
     date.gsub(/]/, "")
     date.ljust(4,'0')
     return date
@@ -196,6 +197,7 @@ class MetadataJson
      return date_marc_start if(Date.new(date_marc_start.to_i)).gregorian?
 
      date_ajust=date[/[.*]/]
+     date_ajust.gsub(/\[/,"").gsub(/]/,"").gsub(/\?/,"")
      return date_ajust if (Date.new(date_ajust.to_i)).gregorian?
      return ""
   end

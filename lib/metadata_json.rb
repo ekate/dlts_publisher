@@ -154,7 +154,7 @@ class MetadataJson
     return "" if date.nil?
     date.to_s.gsub("u", "0")
     puts "date: #{date} "
-    return date
+    return date.to_s
     end
 
   def get_pub_date(date, mods_doc)
@@ -295,6 +295,7 @@ class MetadataJson
          puts "api/v0/colls/#{id}"
          response=@conn.get "api/v0/colls/#{id}"
          col=JSON.parse(response.body).to_hash
+         puts col
          cols<<[{
                     :title => "#{col["name"]}",
                     :type => "dlts_collection",
@@ -305,6 +306,7 @@ class MetadataJson
                     :partner => get_partner(partner_id, rstar_username, rstar_password)[0]
                 }]
        end
+       return cols
      end
 
      def get_partner(partner_id, rstar_username, rstar_password)

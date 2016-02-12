@@ -196,7 +196,7 @@ module DltsPublisher
              @entity_language="ar"
            end
 
-           @pub_date_string=@mods_doc.get_pub_date_string(@mods_doc_xml, @script)
+           @pub_date_string=@mods_doc.get_pub_date_string(@mods_doc_xml)
            book_data={ :entity_title=>@mods_doc.get_title(@mods_doc_xml, @script),
                        :identifier=>"#{@book_id}",
                        :entity_language=>@entity_language,
@@ -208,7 +208,7 @@ module DltsPublisher
                                      :publisher=>@drupal_doc.drupal_field("Publisher",@mods_doc.get_publisher(@mods_doc_xml, @script), "text_textfield","field_publisher"),
                                      :publication_location=>@drupal_doc.drupal_field("Place of Publication",@mods_doc.get_publication_location(@mods_doc_xml, @script), "text_textfield","field_publication_location"),
                                      :publication_date_text=>@drupal_doc.drupal_field("Date of Publication",@pub_date_string, "date_text","field_publication_date_text"),
-                                     :publication_date=>@drupal_doc.drupal_field("Date of Publication",@mods_doc.get_pub_date(@pub_date_string,@mods_doc_xml, @script), "date_text","field_publication_date"),
+                                     :publication_date=>@drupal_doc.drupal_field("Date of Publication",@mods_doc.get_pub_date(@pub_date_string,@mods_doc_xml), "date_text","field_publication_date"),
                                      :collection=>@drupal_doc.drupal_field_array("Collection",@mods_doc.get_collection(@collection_id,@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_collection"),
                                      :partner=>@drupal_doc.drupal_field_array("Partner",@mods_doc.get_partner(@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_partner"),
                                      :handle=>@drupal_doc.drupal_field("Permanent Link","http://hdl.handle.net/#{@handle}","link_field","field_handle"),

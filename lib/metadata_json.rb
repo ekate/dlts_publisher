@@ -157,13 +157,11 @@ class MetadataJson
       xpath += ")"
     end
     xpath +="]/dateIssued[not(@encoding='marc')]"
-    date =mods_doc.xpath("#{xpath}/text()").to_s
-    puts "date: #{date} "
+    date =mods_doc.xpath("#{xpath}/text()")
     return "" if date.nil?
-    date.gsub(/u/, "0")
-    date.gsub(/\[/, "")
-    date.gsub(/]/, "")
-    date.ljust(4,'0')
+    date.to_s.gsub("u", "0")
+    date.to_s.ljust(4,'0')
+    puts "date: #{date} "
     return date
     end
 
@@ -181,9 +179,10 @@ class MetadataJson
        xpath += ")"
      end
      xpath +="]/dateIssued[(@encoding='marc')]"
-     date_marc =mods_doc.xpath("#{xpath}/text()").to_s
-     return date_marc if(Date.new(date_marc.to_i)).gregorian?
-
+     date_marc =mods_doc.xpath("#{xpath}/text()")
+     if(!date_marc.nil?)
+     return date_marc if(Date.new(date_marc.to_s.to_i)).gregorian?
+     end
      xpath = "//originInfo["
      if (script!="Latn")
        xpath +=" @script=\"#{script}\"" unless script.nil?
@@ -193,11 +192,13 @@ class MetadataJson
        xpath += ")"
      end
      xpath +="]/dateIssued[point='start']"
-      date_marc_start =mods_doc.xpath("#{xpath}/text()").to_s
+      date_marc_start =mods_doc.xpath("#{xpath}/text()")
+     if(!date_marc_start.nil?)
      return date_marc_start if(Date.new(date_marc_start.to_i)).gregorian?
-
+     end
      date_ajust=date[/[.*]/]
      date_ajust.gsub(/\[/,"").gsub(/]/,"").gsub(/\?/,"")
+     puts "date: #{date_ajust}"
      return date_ajust if (Date.new(date_ajust.to_i)).gregorian?
      return ""
   end
@@ -209,7 +210,7 @@ class MetadataJson
                  :identifier => "#{id}",
                  :volume_number => "#{volume}",
                  :volume_number_str => "#{volume_str}",
-                 :collection => [get_collection(collection_id, partner_id, rstar_username, rstar_password)[0]],
+                 :collection => [get_collection(collection_id, partner_id, rstar_username, rstar_password)],
                  :isPartOf => [
                      {
                          :title => "Multi-Volume #{id}",

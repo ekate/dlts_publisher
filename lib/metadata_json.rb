@@ -147,59 +147,37 @@ class MetadataJson
     mods_doc.xpath("#{xpath}/text()").to_s
   end
 
-  def get_pub_date_string(mods_doc, script)
-    xpath = "//originInfo["
-    if (script!="Latn")
-      xpath +=" @script=\"#{script}\"" unless script.nil?
-    else
-      xpath += " (not(@script)"
-      xpath += " or  @script=\"#{script}\"" unless script.nil?
-      xpath += ")"
-    end
+  def get_pub_date_string(mods_doc)
+    xpath = "//originInfo[ (not(@script) or @script=\"Latn\" )"
     xpath +="]/dateIssued[not(@encoding='marc')]"
     date =mods_doc.xpath("#{xpath}/text()")
     return "" if date.nil?
     date.to_s.gsub("u", "0")
-    date.to_s.ljust(4,'0')
     puts "date: #{date} "
     return date
     end
 
-  def get_pub_date(date, mods_doc, script)
+  def get_pub_date(date, mods_doc)
      return "" if (date=="")
      puts "date_sort: #{date} "
      return date if(Date.new(date.to_i)).gregorian?
-
-     xpath = "//originInfo["
-     if (script!="Latn")
-       xpath +=" @script=\"#{script}\"" unless script.nil?
-     else
-       xpath += " (not(@script)"
-       xpath += " or  @script=\"#{script}\"" unless script.nil?
-       xpath += ")"
-     end
+     xpath = "//originInfo[(not(@script) or  @script=\"Latn\")"
      xpath +="]/dateIssued[(@encoding='marc')]"
      date_marc =mods_doc.xpath("#{xpath}/text()")
      if(!date_marc.nil?)
      return date_marc if(Date.new(date_marc.to_s.to_i)).gregorian?
      end
-     xpath = "//originInfo["
-     if (script!="Latn")
-       xpath +=" @script=\"#{script}\"" unless script.nil?
-     else
-       xpath += " (not(@script)"
-       xpath += " or  @script=\"#{script}\"" unless script.nil?
-       xpath += ")"
-     end
+     xpath = "//originInfo[(not(@script) or  @script=\"Latn\")"
      xpath +="]/dateIssued[point='start']"
       date_marc_start =mods_doc.xpath("#{xpath}/text()")
      if(!date_marc_start.nil?)
      return date_marc_start if(Date.new(date_marc_start.to_i)).gregorian?
      end
-     date_ajust=date[/[.*]/]
-     date_ajust.gsub(/\[/,"").gsub(/]/,"").gsub(/\?/,"")
-     puts "date: #{date_ajust}"
-     return date_ajust if (Date.new(date_ajust.to_i)).gregorian?
+     date_ajust_first=date.sub(/.*?\[/, '')
+     date_ajust=date_ajust_first.gsub(/[^0-9]/i, '')
+     date_final=date_ajust.ljust(4,'0')
+     puts "date: #{date_final}"
+     return date_final if (Date.new(date_ajust.to_i)).gregorian?
      return ""
   end
 

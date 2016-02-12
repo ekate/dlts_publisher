@@ -212,7 +212,7 @@ module DltsPublisher
                                      :publication_date_text=>@drupal_doc.drupal_field("Date of Publication",@pub_date_string, "date_text","field_publication_date_text"),
                                      :publication_date=>@drupal_doc.drupal_field("Date of Publication",@mods_doc.get_pub_date(@pub_date_string,@mods_doc_xml, @script), "date_text","field_publication_date"),
                                      :collection=>@drupal_doc.drupal_field_array("Collection",@mods_doc.get_collection(@collection_id,@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_collection"),
-                                     :partner=>@drupal_doc.drupal_field_array("Collection",@mods_doc.get_partner(@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_collection"),
+                                     :partner=>@drupal_doc.drupal_field_array("Partner",@mods_doc.get_partner(@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_partner"),
                                      :handle=>@drupal_doc.drupal_field("Permanent Link","http://hdl.handle.net/#{@handle}","link_field","field_handle"),
                                      :read_order=>@drupal_doc.drupal_field("Read Order",@read_order,"options_buttons","field_read_order"),
                                      :scan_order=>@drupal_doc.drupal_field("Scan Order",@scan_order,"options_buttons","field_read_order"),

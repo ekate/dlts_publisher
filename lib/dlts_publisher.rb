@@ -17,7 +17,7 @@ module DltsPublisher
 
   @rstar_password=ARGV[3]
 
-  @json_dir=ARGV[4]||"/home/dlib/ekatep/dlts_viewer_content/books/"
+  @json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
 
   if (ARGV.size<4)
     puts "You must provide collection_path, script(Latin, Arabic, etc), rstar credentials"
@@ -195,9 +195,8 @@ module DltsPublisher
            if(@script=="Arab")
              @entity_language="ar"
            end
-
            @pub_date_string=@mods_doc.get_pub_date_string(@mods_doc_xml)
-           book_data={ :entity_title=>@mods_doc.get_title(@mods_doc_xml, @script),
+           book_data={ :entity_title=>@mods_doc.get_title(@mods_doc_xml, @script)[0..254],
                        :identifier=>"#{@book_id}",
                        :entity_language=>@entity_language,
                        :entity_status=>"1",

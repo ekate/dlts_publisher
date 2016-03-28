@@ -152,32 +152,35 @@ class MetadataJson
     xpath +="]/dateIssued[not(@encoding='marc')]"
     date =mods_doc.xpath("#{xpath}/text()")
     return "" if date.nil?
-    date.to_s.gsub("u", "0")
-    puts "date: #{date} "
-    return date.to_s
+    date_text=date.to_s.gsub("u", "0")
+    date_text=date_text.gsub("&lt;", "")
+    date_text=date_text.gsub("&gt;", "")
+    puts "text date: #{date} "
+    return date_text
     end
 
   def get_pub_date(date, mods_doc)
      return "" if (date=="")
-     puts "date_sort: #{date} "
-     return date if(Date.new(date.to_i)).gregorian?
+     return DateTime.parse("#{date.to_s[0,4]}-01-01").strftime("%C%y-%m-%dT%H:%M:%S") if(Date.new(date.to_s[0,4].to_i)).gregorian?
      xpath = "//originInfo[(not(@script) or  @script=\"Latn\")"
      xpath +="]/dateIssued[(@encoding='marc')]"
      date_marc =mods_doc.xpath("#{xpath}/text()")
      if(!date_marc.nil?)
-     return date_marc if(Date.new(date_marc.to_s.to_i)).gregorian?
+     date_marc_fin=date_marc.to_s[0,4].gsub('u','0')
+     return DateTime.parse("#{date_marc_fin}-01-01").strftime("%C%y-%m-%dT%H:%M:%S") if(Date.new(date_marc_fin.to_i)).gregorian?
      end
      xpath = "//originInfo[(not(@script) or  @script=\"Latn\")"
      xpath +="]/dateIssued[point='start']"
       date_marc_start =mods_doc.xpath("#{xpath}/text()")
      if(!date_marc_start.nil?)
-     return date_marc_start if(Date.new(date_marc_start.to_i)).gregorian?
+     date_marc_fin=date_marc.to_s[0,4].gsub('u','0')
+     return DateTime.parse("#{date_marc_fin}-01-01").strftimer("%C%y-%m-%dT%H:%M:%S") if(Date.new(date_marc_fin.to_i)).gregorian?
      end
      date_ajust_first=date.sub(/.*?\[/, '')
      date_ajust=date_ajust_first.gsub(/[^0-9]/i, '')
      date_final=date_ajust.ljust(4,'0')
-     puts "date: #{date_final}"
-     return date_final if (Date.new(date_ajust.to_i)).gregorian?
+     puts "final date: #{date_final}"
+     return DateTime.parse("#{date_final}-01-01").strftime("%C%y-%m-%dT%H:%M:%S") if (Date.new(date_ajust.to_i)).gregorian?
      return ""
   end
 
@@ -262,11 +265,15 @@ class MetadataJson
          serieses=[]
          serieses_str.each do |series|
            series_id=Digest::MD5.hexdigest(series[0])
+           if(!series[1].nil?)
+            volume_number=series[1].trim if Float(series[1]) rescue false
+           end
            data= {
                :identifier => "series_#{book_id}_#{series_id}",
                :type => 'dlts_series_book',
                :title => series[0],
-               :volume_number => "#{series[1]}",
+               :volume_number => "#{volume_number}",
+               :volume_number_str =>"#{series[1]}",
                :collection => [get_collection(collection_id, partner_id, rstart_username, rstar_password)[0]],
                :isPartOf => [
                    {
@@ -295,16 +302,15 @@ class MetadataJson
          puts "api/v0/colls/#{id}"
          response=@conn.get "api/v0/colls/#{id}"
          col=JSON.parse(response.body).to_hash
-         puts col
-         cols<<[{
+         cols<<{
                     :title => "#{col["name"]}",
                     :type => "dlts_collection",
                     :language => "und",
-                    :identifier => "#{id}",
+                    :identifier => "#{id.chomp}",
                     :code => "#{col["code"]}",
                     :name => "#{col["name"]}",
                     :partner => get_partner(partner_id, rstar_username, rstar_password)[0]
-                }]
+                }
        end
        return cols
      end
@@ -323,7 +329,7 @@ class MetadataJson
             :title => "#{partner["name"]}",
             :type => "dlts_partner",
             :language => "und",
-            :identifier => "#{partner_id}",
+            :identifier => "#{partner_id.chomp}",
             :code => "#{partner["code"]}",
             :name => "#{partner["name"]}"
         }]

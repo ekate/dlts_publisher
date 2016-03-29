@@ -35,7 +35,7 @@ class MetadataJson
       xpath += ")"
     end
     xpath += "]/subTitle"
-    mods_doc.xpath("#{xpath}/text()").to_s[0,50]
+    mods_doc.xpath("#{xpath}/text()").to_s
   end
 
   def get_authors(mods_doc, script)

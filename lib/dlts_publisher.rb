@@ -18,6 +18,7 @@ module DltsPublisher
   @rstar_password=ARGV[3]
 
   @json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
+  #@json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/content_temp"
 
   if (ARGV.size<4)
     puts "You must provide collection_path, script(Latin, Arabic, etc), rstar credentials"
@@ -82,11 +83,12 @@ module DltsPublisher
 
   Dir["#{@collection_path}/wip/ie/**/data/*mets.xml"].each do |f|
        if(options[:start_date]!=nil)
-         mtime = File.mtime(file)
+         mtime = File.mtime(f)
+         puts "#{mtime}"
+         puts Time.parse(options[:start_date])             
        end
-       if(mtime==nil||mtime>Time.now-mtime)
+       if(mtime==nil||mtime>Time.parse(options[:start_date]))
 
-              
          parser =Saxerator.parser(File.new(f))
 
          @id=parser.for_tag(:mets).first.attributes["OBJID"]
@@ -221,7 +223,6 @@ module DltsPublisher
                                      :identifier=>@drupal_doc.drupal_field("Identifier",@book_id,"text_textfield","field_identifier"),
                                      :language=>@drupal_doc.drupal_field("Language",@mods_doc.get_language(@mods_doc_xml),"text_textfield","field_language"),
                                      :language_code=>@drupal_doc.drupal_field("Language",@mods_doc.get_language_code(@mods_doc_xml),"text_textfield","field_language_code"),
-                                     :number=>@drupal_doc.drupal_field("Number",@mods_doc.get_number(@mods_doc_xml),"text_textfield","field_number"),
                                      :pdf_file=>@drupal_doc.drupal_field_array("PDF",["fileserver://books/#{@book_id}/#{@book_id}_hi.pdf","fileserver://books/#{@book_id}/#{@book_id}_lo.pdf" ],"file_generic","field_pdf_filer"),
                                      :representative_image=>@rep_image,
                                      :rights=>@drupal_doc.drupal_field("Rights",@rights,"text_textarea","field_rights"),

@@ -17,7 +17,8 @@ module DltsPublisher
 
   @rstar_password=ARGV[3]
 
-  @json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
+  #@json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
+  @json_dir=ARGV[4]||"/home/dlib/ekatep/books_awdl"
   #@json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/content_temp"
 
   if (ARGV.size<4)
@@ -33,6 +34,7 @@ module DltsPublisher
     opts.banner = "Usage: example.rb [options]"
 
     opts.on('-d', '--start_date Date', 'Start Date') { |v| options[:start_date] = v }
+    opts.on('-f', '--ie_file File', 'IE File') { |v| options[:ie_file] = v }
     opts.on('-c', '--collection_id Collection Id', 'Collection id') { |v| options[:collection_id] = v }
     opts.on('-p', '--partner_id Partner Id', 'Partner id') { |v| options[:partner_id] = v }
 
@@ -57,7 +59,7 @@ module DltsPublisher
 
   @collection_id<< options[:collection_id] unless options[:collection_id]==nil
 
-  partner_id=nil
+  @partner_id=nil
 
   if(options[:partner_id]!=nil)
     @partner_id=options[:partner_id]
@@ -65,7 +67,7 @@ module DltsPublisher
     @partner_file_path="#{File.expand_path("..", @collection_path)}/partner_url"
 
     if !File.exist?(@partner_file_path)
-      puts "The file #{@partner_file_path} for the collection #{@Collection_path} doesn't exist"
+      puts "The file #{@partner_file_path} for the provider doesn't exist"
       exit
     end
 
@@ -79,9 +81,25 @@ module DltsPublisher
     exit
   end
 
+  @ies=[]
 
+  if(options[:ie_file]!=nil)
+    @ie_file_path=options[:ie_file]
+    if !File.exist?(@ie_file_path)
+      puts "The file #{@ie_file_path} doesn't exist"
+      exit
+    end
+    ie_file=File.open(@ie_file_path).read
+    ie_file.gsub!(/\r\n?/, "\n")
+    ie_file.each_line do |ie_id|
+      @ies<<"#{@collection_path}/wip/ie/#{ie_id.gsub("\n","")}/data/#{ie_id.gsub("\n","")}_mets.xml" 
+    end
+  else
+     @ies<<Dir["#{@collection_path}/wip/ie/**/data/*mets.xml"]
+  end
+    puts @ies.length
 
-  Dir["#{@collection_path}/wip/ie/**/data/*mets.xml"].each do |f|
+  @ies.each do |f|
        if(options[:start_date]!=nil)
          mtime = File.mtime(f)
          puts "#{mtime}"
@@ -94,6 +112,7 @@ module DltsPublisher
          @id=parser.for_tag(:mets).first.attributes["OBJID"]
 
          @books=[]
+         @multi_volume=false
 
          puts "ie id:#{@ie_id}"
          parser.for_tag(:div).with_attributes({:TYPE => "INTELLECTUAL_ENTITY"}).each do |ie|
@@ -104,9 +123,12 @@ module DltsPublisher
              @books<<[book_id,volume,volume_order]
            end
          end
-         @multi_volume=false
-         if @books.size>1
+         if @books.size>1 
            @multi_volume=true
+         else
+           if @books[0][1]!=nil
+             @multi_volume=true
+           end
          end
 
 

@@ -79,7 +79,7 @@ class MetadataJson
   end
 
   def get_description(mods_doc, script)
-    xpath="//abstract"
+    xpath="//abstract1"
     mods_doc.xpath("#{xpath}/text()").to_s
   end
 
@@ -260,14 +260,16 @@ class MetadataJson
          titles = mods_doc.xpath(xpath)
          serieses_str=[]
          titles.each do |title|
-           title.gsub!(/no?./,";no.")
+           title.to_s.gsub!(/no\./,";no.")
+           title.to_s.gsub!(/n\./,";n.")
+           title.to_s.gsub!(/v\./,";v.")
            serieses_str<<title.to_s.split(";")
          end
          serieses=[]
          serieses_str.each do |series|
            series_id=Digest::MD5.hexdigest(series[0])
            if(!series[1].nil?)
-            volume_number=series[1].gsub!("no.",'').trim if Float(series[1].trim) rescue false
+            volume_number=series[1].to_s.gsub(/[no?\.|v\.]/,'').gsub(/\s+/,"") if Float(series[1].gsub(/\s+/,"")) rescue false
            end
            data= {
                :identifier => "series_#{book_id}_#{series_id}",

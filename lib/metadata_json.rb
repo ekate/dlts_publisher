@@ -228,14 +228,27 @@ class MetadataJson
        end
      end
 
-     def generate_single_pages(parser, book_id,type)
+   def generate_map_page(parser, book_id)
+    single_pages=[]
+    map=parser.for_tag(:div).with_attributes({:TYPE => "INTELLECTUAL_ENTITY"}).first
+    page=map['div']
+    label=page.attributes["ID"].gsub('s-', '')
+    order=page.attributes["ORDER"].to_i
+    page= {:isPartOf => book_id, :sequence => [order], :realPageNumber => order,
+             :cm => {:uri => "fileserver://maps/#{book_id}/#{label}_d.jp2", :width => "", :height => "", :levels => "",
+                     :dwtLevels => "", :compositingLayerCount => "", :timestamp => Time.now().to_i.to_s}}
+
+    return single_pages<<page
+  end
+
+  def generate_single_pages(parser, book_id)
        single_pages=[]
        map=parser.for_tag(:div).with_attributes({:TYPE => "INTELLECTUAL_ENTITY"}).first
        map['div'].each do |page|
          label=page.attributes["ID"].gsub('s-', '')
          order=page.attributes["ORDER"].to_i
          page= {:isPartOf => book_id, :sequence => [order], :realPageNumber => order,
-                :cm => {:uri => "fileserver://#{type}s/#{book_id}/#{label}_d.jp2", :width => "", :height => "", :levels => "",
+                :cm => {:uri => "fileserver://books/#{book_id}/#{label}_d.jp2", :width => "", :height => "", :levels => "",
                         :dwtLevels => "", :compositingLayerCount => "", :timestamp => Time.now().to_i.to_s}}
          single_pages<<page
        end

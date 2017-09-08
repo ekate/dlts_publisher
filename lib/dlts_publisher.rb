@@ -257,7 +257,7 @@ module DltsPublisher
                        },
                        :multivolume => {:volume=>@mods_doc.get_multivolume(@id,book[2],book[1],@collection_id,@partner_id,@script,@multi_volume,@rstar_username,@rstar_password)},
                        :series=>@mods_doc.get_series(@mods_doc_xml,@collection_id,@partner_id,@book_id,@script,@rstar_username,@rstar_password),
-                       :pages=>{:page=>@mods_doc.generate_single_pages(@mets_parser,@book_id,@type)},
+                       :pages=>{:page=>@mods_doc.generate_single_pages(@mets_parser,@book_id)},
                        :stitched=>{:page=>@mods_doc.generate_double_pages(@page_count,@book_id)}}
            end
            if (@type=="map")
@@ -295,7 +295,7 @@ module DltsPublisher
                              },
                              :multivolume => {:volume=>@mods_doc.get_multivolume(@id,book[2],book[1],@collection_id,@partner_id,@script,@multi_volume,@rstar_username,@rstar_password)},
                              :series=>@mods_doc.get_series(@mods_doc_xml,@collection_id,@partner_id,@book_id,@script,@rstar_username,@rstar_password),
-                             :pages=>{:page=>@mods_doc.generate_single_pages(@mets_parser,@book_id,@type)}}
+                             :pages=>{:page=>@mods_doc.generate_map_page(@mets_parser,@book_id)}}
                end
            fJson = File.open("#{@json_dir}/#{@book_id}.#{@entity_language}.json","w")
            fJson.write(item_data.to_json)

@@ -62,6 +62,26 @@ class MetadataJson
     return @authors
   end
 
+  def get_notes(mods_doc)
+    @notes = []
+    xpath = "//note | //genre[\@authority='lcgft']"
+    @nodes = mods_doc.xpath(xpath)
+    @nodes.each do |node|
+      note=node.xpath("./text()").to_s.strip
+      if(!note.empty?)
+        puts "note: #{note}"
+        @notes<<note
+      end
+    end
+    puts "#{@notes}.to_s"
+    return @notes
+  end
+
+  def get_physical_description(mods_doc)
+    xpath = "//physicalDescription/extent"
+    mods_doc.xpath("#{xpath}/text()")
+  end
+
   def get_publisher(mods_doc, script)
     xpath = "//originInfo["
     if (script!='Latn')
@@ -79,7 +99,7 @@ class MetadataJson
   end
 
   def get_description(mods_doc, script)
-    xpath="//abstract1"
+    xpath="//abstract"
     mods_doc.xpath("#{xpath}/text()").to_s
   end
 
@@ -123,7 +143,7 @@ class MetadataJson
     children = subj_element.elements
     if (!children.empty?)
           children.each do |child |
-              if (child.name!="geographicCode")
+              if (child.name!="geographicCode"||child.name!="cartographics")
                     get_leaf_vals(child,values)
               end
           end

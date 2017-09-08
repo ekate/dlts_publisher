@@ -37,6 +37,7 @@ module DltsPublisher
     opts.on('-f', '--ie_file File', 'IE File') { |v| options[:ie_file] = v }
     opts.on('-c', '--collection_id Collection Id', 'Collection id') { |v| options[:collection_id] = v }
     opts.on('-p', '--partner_id Partner Id', 'Partner id') { |v| options[:partner_id] = v }
+    opts.on('-t', '--type Item Type', 'Item Type') { |v| options[:type] = v }
 
   end.parse!
 

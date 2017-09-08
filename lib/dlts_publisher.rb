@@ -62,7 +62,7 @@ module DltsPublisher
 
   @partner_id=nil
 
-  @type<< options[:type] unless options[:type]==nil
+  @type=options[:type] unless options[:type]==nil
 
   if(options[:partner_id]!=nil)
     @partner_id=options[:partner_id]

@@ -143,7 +143,7 @@ class MetadataJson
     children = subj_element.elements
     if (!children.empty?)
           children.each do |child |
-              if (child.name!="geographicCode"||child.name!="cartographics")
+              if (child.name!="geographicCode" && child.name!="cartographics")
                     get_leaf_vals(child,values)
               end
           end

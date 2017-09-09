@@ -286,11 +286,11 @@ module DltsPublisher
                                            :identifier=>@drupal_doc.drupal_field("Identifier",@book_id,"text_textfield","field_identifier"),
                                            :language=>@drupal_doc.drupal_field("Language",@mods_doc.get_language(@mods_doc_xml),"text_textfield","field_language"),
                                            :language_code=>@drupal_doc.drupal_field("Language",@mods_doc.get_language_code(@mods_doc_xml),"text_textfield","field_language_code"),
-                                           :pdf_file=>@drupal_doc.drupal_field_array("PDF",["fileserver://maps/#{@book_id}/#{@book_id}_hi.pdf","fileserver://maps/#{@book_id}/#{@book_id}_lo.pdf" ],"file_generic","field_pdf_filer"),
+                                           :pdf_file=>@drupal_doc.drupal_field_array("PDF",["fileserver://books/#{@book_id}/#{@book_id}_hi.pdf","fileserver://books/#{@book_id}/#{@book_id}_lo.pdf" ],"file_generic","field_pdf_filer"),
                                            :representative_image=>@rep_image,
                                            :rights=>@drupal_doc.drupal_field("Rights",@rights,"text_textarea","field_rights"),
                                            :subject=>@drupal_doc.drupal_field_array("Subject",@mods_doc.get_subject(@mods_doc_xml, @script),"taxonomy_autocomplete","field_subject"),
-                                           :physical_description=>@drupal_doc.drupal_field_array("Physical Description",@mods_doc.get_physical_description(@mods_doc_xml),"text_textfield","field_physical_description"),
+                                           :physical_description=>@drupal_doc.drupal_field("Physical Description",@mods_doc.get_physical_description(@mods_doc_xml),"text_textfield","field_physical_description"),
                                            :notes=>@drupal_doc.drupal_field_array("Notes",@mods_doc.get_notes(@mods_doc_xml),"text_textfield","field_notes")
                              },
                              :multivolume => {:volume=>@mods_doc.get_multivolume(@id,book[2],book[1],@collection_id,@partner_id,@script,@multi_volume,@rstar_username,@rstar_password)},

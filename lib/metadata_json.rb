@@ -135,6 +135,8 @@ class MetadataJson
         puts "subj: #{subject}"
         subjects<<subject.join(' -- ') unless subject.empty?||subject.size==0||subject==""
     end
+    path="//genre[\@authority='lcgft'] "
+    subjects<<mods_doc.xpath("#{xpath}/text()").to_s
 
     return subjects.uniq
     end

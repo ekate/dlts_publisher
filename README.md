@@ -15,7 +15,7 @@ Links within the README:
 * Install bundle: `gem install bundle`
 * Install required gems by running the command: `$ bundle`
 
-#### calling-the-script-directly 
+## Call script  
 The script requirese the following parameters: 
 se_list
 wip_path
@@ -30,8 +30,9 @@ characterset(Latn|Arab)
 * **characterset**: /For Arabic book collection the script runs twice first with Latn parameter then with Arab parameter. For all other books it runs only with Latn parameter/
 * **R* username** 
 * **R* password** 
-* The script then should be called the following way:
 ```
-    * `bundle exec ruby lib/dlts_publisher.rb wip_path Latn|Arab R*username R*password git_path -f path_to_se_list`
+ The script then should be called the following way:
+```
+ bundle exec ruby lib/dlts_publisher.rb wip_path Latn|Arab R*username R*password git_path -f path_to_se_list
 
 The script will generate a set of json objects and save them in the local copy of content repository. 

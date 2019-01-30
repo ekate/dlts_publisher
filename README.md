@@ -1,5 +1,4 @@
-This codebase reads a wip and imports a photo document into the dlts_book collection for the viewer workflow. It is part of the book publishing workflow.
-
+This codebase generates json documents which are then used to create book objects in Drupal (CMI which hosts publishing repository). It is part of the book publishing workflow.
 
 Links within the README:
 * [Script Setup](#script-setup)

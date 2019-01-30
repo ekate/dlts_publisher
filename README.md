@@ -1,5 +1,3 @@
-This codebase generates json documents which are then used to create book objects in Drupal (CMI which hosts publishing repository). It is part of the book publishing workflow.
-
 Links within the README:
 * [Script Setup](#script-setup)
 * [Call script ](#calling-the-script-directly)
@@ -17,22 +15,19 @@ Links within the README:
 
 ## Call script  
 The script requirese the following parameters: 
-se_list
+ie_list
 wip_path
 git_path
 R* username 
 R* password 
 characterset(Latn|Arab)
-```
-* **se_list**: list of books to be published
+* **ie_list**: list of books to be published
 * **wip_path**: /path to collection in R*/
 * **git_path**: /path to local copy of github repository/
 * **characterset**: /For Arabic book collection the script runs twice first with Latn parameter then with Arab parameter. For all other books it runs only with Latn parameter/
 * **R* username** 
 * **R* password** 
-```
- The script then should be called the following way:
+The script will generate a set of json objects and save them in the local copy of content repository. 
+The script should be called the following way:
 ```
  bundle exec ruby lib/dlts_publisher.rb wip_path Latn|Arab R*username R*password git_path -f path_to_se_list
-
-The script will generate a set of json objects and save them in the local copy of content repository. 

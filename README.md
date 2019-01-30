@@ -1,29 +1,38 @@
-# DltsPublisher
+This codebase reads a wip and imports a photo document into the dlts_book collection for the viewer workflow. It is part of the book publishing workflow.
 
-TODO: Write a gem description
 
-## Installation
+Links within the README:
+* [Script Setup](#script-setup)
+* [Call script ](#calling-the-script-directly)
 
-Add this line to your application's Gemfile:
+## Requirements
+#### Ruby version 2.1.0
 
-    gem 'dlts_publisher'
+## Script Setup
+* Install rvm, if not present, from [here](https://rvm.io/rvm/install)
+* Install ruby v.2.1.0:
+   `$ rvm install ruby-2.1.0`
+* The .ruby-gemset file in the directory will automatically create a gemset
+* Install bundle: `gem install bundle`
+* Install required gems by running the command: `$ bundle`
 
-And then execute:
+#### calling-the-script-directly 
+The script requirese the following parameters: 
+se_list
+wip_path
+git_path
+R* username 
+R* password 
+characterset(Latn|Arab)
+```
+* **se_list**: list of books to be published
+* **wip_path**: /path to collection in R*/
+* **git_path**: /path to local copy of github repository/
+* **characterset**: /For Arabic book collection the script runs twice first with Latn parameter then with Arab parameter. For all other books it runs only with Latn parameter/
+* **R* username** 
+* **R* password** 
+* The script then should be called the following way:
+```
+    * `bundle exec ruby lib/dlts_publisher.rb wip_path Latn|Arab R*username R*password git_path -f path_to_se_list`
 
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install dlts_publisher
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it ( https://github.com/[my-github-username]/dlts_publisher/fork )
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a new Pull Request
+The script will generate a set of json objects and save them in the local copy of content repository. 

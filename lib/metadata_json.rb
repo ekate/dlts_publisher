@@ -75,6 +75,8 @@ class MetadataJson
 
   def get_call_number(mods_doc, script)
     xpath="//classification[\@authority='lcc']"
+    call_number=mods_doc.xpath("#{xpath}/text()").to_s
+    puts "call number #{call_number}"
     mods_doc.xpath("#{xpath}/text()").to_s
   end
 
@@ -183,6 +185,107 @@ class MetadataJson
      return DateTime.parse("#{date_final}-01-01").strftime("%C%y-%m-%dT%H:%M:%S") if (Date.new(date_ajust.to_i)).gregorian?
      return ""
   end
+ 
+  def get_topic(mods_doc, script)
+     call_number=get_call_number(mods_doc,script)
+     topic=""
+     if(!call_number.nil?&&!call_number.empty?)
+      first_letter=call_number[1]
+      puts "First letter #{script}"
+      if(script!='Arab')
+        case first_letter 
+         when 'A' 
+          topic='General Works'
+         when 'B'
+          topic='Philosophy. Psychology. Religion'
+         when 'C'
+          topic='Auxiliary Sciences of History'
+         when 'D'
+          topic='World History and History of Europe, Asia, Africa, Australia, New Zealand, etc.';
+         when 'E'
+          topic='History of the Americas'
+         when 'F'
+          topic='History of the Americas'
+         when 'G'
+          topic='Geography. Anthropology. Recreation'
+         when 'H'
+          topic='Social Sciences'
+         when 'J'
+          topic='Political Science'
+         when 'K'
+          topic='Law'
+         when 'L'
+          topic='Education'
+         when 'M'
+          topic='Music and Books on Music'
+         when 'N'
+          topic='Fine Arts'
+         when 'P'
+          topic='Language and Literature'
+         when 'Q'
+          topic='Science'
+         when 'R'
+          topic='Medicine'
+         when 'S'
+          topic='Agriculture'
+         when 'T'
+          topic='Technology'
+         when 'U'
+          topic='Military Science'
+         when 'V'
+          topic='Naval Science'
+         when 'Z'
+          topic='Bibliography. Library Science. Information Resources (General)'
+       end
+     else 
+       case first_letter 
+         when 'A'
+          topic='ﺎﻠﻤﻋﺍﺮﻓ ﺎﻠﻋﺎﻣﺓ'
+         when 'B'
+          topic='ﺎﻠﻔﻠﺴﻓﺓ ﻮﻌﻠﻣ ﺎﻠﻨﻔﺳ ﻭﺎﻟﺪﻴﻧ'
+         when 'C'
+          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﻓﺮﻌﻳﺓ ﻞﻠﺗﺍﺮﻴﺧ'
+         when 'D'
+          topic='ﺕﺍﺮﻴﺧ ﺎﻠﻋﺎﻠﻣ ﻮﺗﺍﺮﻴﺧ ﺃﻭﺭﻮﺑﺍ ﻭﺂﺴﻳﺍ ﻭﺄﻓﺮﻴﻘﻳﺍ'
+         when 'E'
+          topic='ﺕﺍﺮﻴﺧ ﺄﻣﺮﻴﻛﺍ'
+         when 'F'
+          topic='ﺕﺍﺮﻴﺧ ﺄﻣﺮﻴﻛﺍ'
+         when 'G'
+          topic='ﺎﻠﺠﻏﺭﺎﻔﻳﺍ ﻭﺍﻸﻨﺛﺮﺑﻮﻟﻮﺠﻳﺍ ﻭﺎﻠﺗﺮﻔﻴﻫ'
+         when 'H'
+          topic='ﺎﻠﻌﻟﻮﻣ ﺍﻼﺠﺘﻣﺎﻌﻳﺓ'
+         when 'J'
+          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﺴﻳﺎﺴﻳﺓ'
+         when 'K'
+          topic='ﺎﻠﻗﺎﻧﻮﻧ'
+         when 'L'
+          topic='ﺎﻠﺘﻌﻠﻴﻣ'
+         when 'M'
+          topic='ﺎﻠﻣﻮﺴﻴﻗﻯ'
+         when 'N'
+          topic='ﺎﻠﻔﻧﻮﻧ ﺎﻠﺠﻤﻴﻟﺓ'
+         when 'P'
+          topic='ﺎﻠﻠﻏﺎﺗ ﻭﺍﻵﺩﺎﺑ'
+         when 'Q'
+          topic='ﺎﻠﻌﻟﻮﻣ'
+         when 'R'
+          topic='ﺎﻠﻄﺑ'
+         when 'S'
+          topic='ﺎﻟﺯﺭﺎﻋﺓ'
+         when 'T'
+          topic='ﺎﻠﺘﻜﻧﻮﻟﻮﺠﻳﺍ'
+         when 'U'
+          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﻌﺴﻛﺮﻳﺓ'
+         when 'V'
+          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﺒﺣﺮﻳﺓ'
+         when 'Z'
+          topic='ﺎﻠﺒﺒﻠﻳﻮﻏﺭﺎﻔﻳﺍ ، ﻮﻌﻟﻮﻣ ﺎﻠﻤﻜﺘﺑﺎﺗ ، ﻭﺎﻠﻤﻌﻟﻮﻣﺎﺗ ﺎﻠﻋﺎﻣﺓ'
+        end
+       end
+      end
+      return topic
+     end
 
      def get_multivolume(id, volume, volume_str, collection_id, partner_id, script, multi_vol, rstar_username, rstar_password)
        if (script=="Latn"&&multi_vol)

@@ -89,7 +89,7 @@ class MetadataJson
     if(code.nil?)
       return ISO_639.find_by_code("eng").english_name
     else
-      ISO_639.find_by_code("#{code}").english_name
+      ISO_639.find_by_code("#{code.to_s.strip}").english_name
     end
   end
 

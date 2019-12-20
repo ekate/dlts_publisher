@@ -185,14 +185,34 @@ class MetadataJson
      return DateTime.parse("#{date_final}-01-01").strftime("%C%y-%m-%dT%H:%M:%S") if (Date.new(date_ajust.to_i)).gregorian?
      return ""
   end
- 
+
   def get_topic(mods_doc, script)
-     call_number=get_call_number(mods_doc,script)
+    xpath="//classification[\@authority='lcc']"
+    call_number=mods_doc.xpath("#{xpath}/text()").to_s
+    puts "call number lcc #{call_number}"
+    topic=""
+    if(!call_number.nil?&&!call_number.empty?)
+       topic=get_topic_from_lcc(call_number, script)
+    else
+      xpath="//classification[\@authority='ddc']"
+      call_number=mods_doc.xpath("#{xpath}/text()").to_s
+      puts "call number ddc #{call_number}"
+      if(!call_number.nil?&&!call_number.empty?)
+        topic=get_topic_from_ddc(call_number, script)
+      end
+    end
+    return topic 
+  end
+  
+  def get_topic_from_ddc(call_number, script)
+    puts call_number
+  end
+ 
+  def get_topic_from_lcc(call_number, script)
      topic=""
-     if(!call_number.nil?&&!call_number.empty?)
-      first_letter=call_number[1]
-      puts "First letter #{script}"
-      if(script!='Arab')
+     first_letter=call_number[1]
+     puts "First letter #{script}"
+     if(script!='Arab')
         case first_letter 
          when 'A' 
           topic='General Works'
@@ -282,7 +302,6 @@ class MetadataJson
          when 'Z'
           topic='ﺎﻠﺒﺒﻠﻳﻮﻏﺭﺎﻔﻳﺍ ، ﻮﻌﻟﻮﻣ ﺎﻠﻤﻜﺘﺑﺎﺗ ، ﻭﺎﻠﻤﻌﻟﻮﻣﺎﺗ ﺎﻠﻋﺎﻣﺓ'
         end
-       end
       end
       return topic
      end

@@ -84,18 +84,23 @@ class MetadataJson
   end
 
   def get_language(mods_doc)
-    code=get_language_code(mods_doc)
-    puts code
-    if(code.nil?)
-      return ISO_639.find_by_code("eng").english_name
+    @codes = get_language_code(mods_doc)
+    @languages = []
+    if(@codes.nil?)
+      return @codes<<ISO_639.find_by_code("eng").english_name
     else
-      ISO_639.find_by_code("#{code.to_s.strip}").english_name
+      @codes.each do |code|      
+        puts code
+        @languages<<ISO_639.find_by_code("#{code.to_s.strip}").english_name
+      end
+      puts "#{@languages}.to_s"
+      return @languages
     end
   end
 
   def get_language_code(mods_doc)
     xpath="//language/languageTerm[@authority='iso639-2b' and @type='code']/text()"
-    mods_doc.xpath("#{xpath}").first
+    mods_doc.xpath("#{xpath}")
   end
 
   def get_number(mods_doc)

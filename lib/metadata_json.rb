@@ -8,7 +8,12 @@ require 'digest'
 
 
 class MetadataJson
-
+  #those hashes are used to lookup book category according to LCC or DDC classification. Now only used for ACO books
+  @ddc_hash=nil 
+  @ddc_ranges_hash=nil 
+  @lcc_cat_en=nil 
+  @lcc_cat_ar=nil
+ 
   def get_title(mods_doc, script)
     xpath="/mods/titleInfo[not(@type=\"uniform\") "
     if (script!="Latn")
@@ -186,125 +191,66 @@ class MetadataJson
      return ""
   end
 
-  def get_topic(mods_doc, script)
-    xpath="//classification[\@authority='lcc']"
-    call_number=mods_doc.xpath("#{xpath}/text()").to_s
-    puts "call number lcc #{call_number}"
+  def get_topic(mods_doc, script,need_category)
     topic=""
-    if(!call_number.nil?&&!call_number.empty?)
-       topic=get_topic_from_lcc(call_number, script)
-    else
-      xpath="//classification[\@authority='ddc']"
-      call_number=mods_doc.xpath("#{xpath}/text()").to_s
-      puts "call number ddc #{call_number}"
-      if(!call_number.nil?&&!call_number.empty?)
-        topic=get_topic_from_ddc(call_number, script)
-      end
-    end
+    if(need_category)
+        if(@ddc_hash.nil?)
+          @ddc_hash=eval(File.read("category_hashes/ddc_hash"))
+        end
+        if(@ddc_ranges_hash.nil?)
+          @ddc_ranges_hash=eval(File.read("category_hashes/ddc_range"))
+        end
+        if(@lcc_cat_en.nil?)
+          @lcc_cat_en=eval(File.read("category_hashes/lcc_cat_en"))
+        end
+        if(@lcc_cat_ar.nil?)
+          @lcc_cat_ar=eval(File.read("category_hashes/lcc_cat_ar"))
+        end
+        xpath="//classification[\@authority='lcc']"
+        call_number=mods_doc.xpath("#{xpath}/text()").to_s
+        puts "call number lcc #{call_number}"
+        if(!call_number.nil?&&!call_number.empty?)
+          topic=topic_lcc_lookup(call_number[1], script)
+        else
+          xpath="//classification[\@authority='ddc']"
+          call_number=mods_doc.xpath("#{xpath}/text()").to_s
+          puts "call number ddc #{call_number}"
+          if(!call_number.nil?&&!call_number.empty?)
+            topic=get_topic_from_ddc(call_number, script)
+          end
+       end
+     end
+     puts "topic:"+topic+" call_number:"+call_number
     return topic 
   end
   
   def get_topic_from_ddc(call_number, script)
     puts call_number
+    topic=""
+    first_letter=@ddc_hash[call_number]
+    if(!first_letter.nil?&&!first_letter.empty?)
+        return topic_lcc_lookup(first_letter,script)
+    else 
+       @ddc_ranges_hash.each do |first_letter,ddc_ranges|
+         ddc_ranges.each do |ddc_range|
+           if(ddc_range.include?(call_number))
+              return topic_lcc_lookup(first_letter,script)
+           end
+         end
+       end 
+    end
+    return topic
   end
  
-  def get_topic_from_lcc(call_number, script)
+  def topic_lcc_lookup(first_letter, script)
      topic=""
-     first_letter=call_number[1]
-     puts "First letter #{script}"
-     if(script!='Arab')
-        case first_letter 
-         when 'A' 
-          topic='General Works'
-         when 'B'
-          topic='Philosophy. Psychology. Religion'
-         when 'C'
-          topic='Auxiliary Sciences of History'
-         when 'D'
-          topic='World History and History of Europe, Asia, Africa, Australia, New Zealand, etc.';
-         when 'E'
-          topic='History of the Americas'
-         when 'F'
-          topic='History of the Americas'
-         when 'G'
-          topic='Geography. Anthropology. Recreation'
-         when 'H'
-          topic='Social Sciences'
-         when 'J'
-          topic='Political Science'
-         when 'K'
-          topic='Law'
-         when 'L'
-          topic='Education'
-         when 'M'
-          topic='Music and Books on Music'
-         when 'N'
-          topic='Fine Arts'
-         when 'P'
-          topic='Language and Literature'
-         when 'Q'
-          topic='Science'
-         when 'R'
-          topic='Medicine'
-         when 'S'
-          topic='Agriculture'
-         when 'T'
-          topic='Technology'
-         when 'U'
-          topic='Military Science'
-         when 'V'
-          topic='Naval Science'
-         when 'Z'
-          topic='Bibliography. Library Science. Information Resources (General)'
-       end
+     if(script=='Latn')
+        topic=@lcc_cat_en[first_letter] 
      else 
-       case first_letter 
-         when 'A'
-          topic='ﺎﻠﻤﻋﺍﺮﻓ ﺎﻠﻋﺎﻣﺓ'
-         when 'B'
-          topic='ﺎﻠﻔﻠﺴﻓﺓ ﻮﻌﻠﻣ ﺎﻠﻨﻔﺳ ﻭﺎﻟﺪﻴﻧ'
-         when 'C'
-          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﻓﺮﻌﻳﺓ ﻞﻠﺗﺍﺮﻴﺧ'
-         when 'D'
-          topic='ﺕﺍﺮﻴﺧ ﺎﻠﻋﺎﻠﻣ ﻮﺗﺍﺮﻴﺧ ﺃﻭﺭﻮﺑﺍ ﻭﺂﺴﻳﺍ ﻭﺄﻓﺮﻴﻘﻳﺍ'
-         when 'E'
-          topic='ﺕﺍﺮﻴﺧ ﺄﻣﺮﻴﻛﺍ'
-         when 'F'
-          topic='ﺕﺍﺮﻴﺧ ﺄﻣﺮﻴﻛﺍ'
-         when 'G'
-          topic='ﺎﻠﺠﻏﺭﺎﻔﻳﺍ ﻭﺍﻸﻨﺛﺮﺑﻮﻟﻮﺠﻳﺍ ﻭﺎﻠﺗﺮﻔﻴﻫ'
-         when 'H'
-          topic='ﺎﻠﻌﻟﻮﻣ ﺍﻼﺠﺘﻣﺎﻌﻳﺓ'
-         when 'J'
-          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﺴﻳﺎﺴﻳﺓ'
-         when 'K'
-          topic='ﺎﻠﻗﺎﻧﻮﻧ'
-         when 'L'
-          topic='ﺎﻠﺘﻌﻠﻴﻣ'
-         when 'M'
-          topic='ﺎﻠﻣﻮﺴﻴﻗﻯ'
-         when 'N'
-          topic='ﺎﻠﻔﻧﻮﻧ ﺎﻠﺠﻤﻴﻟﺓ'
-         when 'P'
-          topic='ﺎﻠﻠﻏﺎﺗ ﻭﺍﻵﺩﺎﺑ'
-         when 'Q'
-          topic='ﺎﻠﻌﻟﻮﻣ'
-         when 'R'
-          topic='ﺎﻠﻄﺑ'
-         when 'S'
-          topic='ﺎﻟﺯﺭﺎﻋﺓ'
-         when 'T'
-          topic='ﺎﻠﺘﻜﻧﻮﻟﻮﺠﻳﺍ'
-         when 'U'
-          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﻌﺴﻛﺮﻳﺓ'
-         when 'V'
-          topic='ﺎﻠﻌﻟﻮﻣ ﺎﻠﺒﺣﺮﻳﺓ'
-         when 'Z'
-          topic='ﺎﻠﺒﺒﻠﻳﻮﻏﺭﺎﻔﻳﺍ ، ﻮﻌﻟﻮﻣ ﺎﻠﻤﻜﺘﺑﺎﺗ ، ﻭﺎﻠﻤﻌﻟﻮﻣﺎﺗ ﺎﻠﻋﺎﻣﺓ'
-        end
-      end
-      return topic
+        topic=@lcc_cat_ar[first_letter] 
      end
+     return topic
+  end
 
      def get_multivolume(id, volume, volume_str, collection_id, partner_id, script, multi_vol, rstar_username, rstar_password)
        if (script=="Latn"&&multi_vol)

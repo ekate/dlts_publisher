@@ -78,15 +78,40 @@ class MetadataJson
     mods_doc.xpath("#{xpath}/text()").first
   end
 
-  def get_call_number(mods_doc, script)
+  def get_call_number(mods_doc, scripti,marc_file_mapping,marc_file_path,book_id)
     xpath="//classification[\@authority='lcc']"
     call_number=mods_doc.xpath("#{xpath}/text()").to_s
     puts "call number #{call_number}"
-    mods_doc.xpath("#{xpath}/text()").to_s
+    if(call_number.empty?&&marc_file_mapping!=nil)
+      call_number=get_call_number_from_marc(marc_file_mapping,marc_file_path,book_id)
+    end 
+   puts "call number #{call_number}"
+   return call_number 
+  end
+
+  def get_call_number_from_marc(marc_file_mapping,marc_file_path,book_id)
+     f = File.open(marc_file_mapping, "r")
+     call_number=""
+     f.each_line do |line|
+       marc_files=line.split(" ")
+       if(marc_files.include?(book_id))
+         marc_file_full_path=marc_file_path+"/NjP_"+marc_files[0]+"_marcxml.xml"
+         puts marc_file_full_path
+         if(File.exist?(marc_file_full_path))
+           marc_xml = Nokogiri::XML.parse(File.open(marc_file_full_path)).remove_namespaces! 
+           xpath="//datafield[\@tag='852']/subfield[\@code="
+           call_numbe=marc_xml.xpath("#{xpath}'h']/text()")+marc_xml.xpath("#{xpath}'i']/text()")
+         else
+          puts "Marc file is missing" 
+         end
+       end
+     end
+     f.close
+     return call_number
   end
 
   def get_description(mods_doc, script)
-    xpath="//abstract1"
+    xpath="//abstract"
     mods_doc.xpath("#{xpath}/text()").to_s
   end
 
@@ -191,7 +216,7 @@ class MetadataJson
      return ""
   end
 
-  def get_topic(mods_doc, script,need_category)
+  def get_topic(mods_doc, script,need_category,marc_file_mapping,marc_file_path,book_id)
     topic=""
     if(need_category)
         if(@ddc_hash.nil?)
@@ -207,10 +232,13 @@ class MetadataJson
           @lcc_cat_ar=eval(File.read("category_hashes/lcc_cat_ar"))
         end
         xpath="//classification[\@authority='lcc']"
-        call_number=mods_doc.xpath("#{xpath}/text()").to_s
+        call_number=mods_doc.xpath("#{xpath}/text()")[1]
+        if(call_number.nil?||call_number.empty?)
+          call_number=get_call_number_from_marc(marc_file_mapping,marc_file_path,book_id)
+        end
         puts "call number lcc #{call_number}"
         if(!call_number.nil?&&!call_number.empty?)
-          topic=topic_lcc_lookup(call_number[1], script)
+          topic=topic_lcc_lookup(call_number, script)
         else
           xpath="//classification[\@authority='ddc']"
           call_number=mods_doc.xpath("#{xpath}/text()").to_s
@@ -220,7 +248,6 @@ class MetadataJson
           end
        end
      end
-     puts "topic:"+topic+" call_number:"+call_number
     return topic 
   end
   

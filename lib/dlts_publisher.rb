@@ -37,7 +37,8 @@ module DltsPublisher
     opts.on('-f', '--ie_file File', 'IE File') { |v| options[:ie_file] = v }
     opts.on('-c', '--collection_id Collection Id', 'Collection id') { |v| options[:collection_id] = v }
     opts.on('-p', '--partner_id Partner Id', 'Partner id') { |v| options[:partner_id] = v }
-    opts.on('-k', '--category Need Category', 'Need Category') { |v| options[:need_category] = true }
+    opts.on('-k', '--category Need Category', 'Need Category') { options[:need_category] = true }
+    opts.on('-m', '--category MARC file with Call Numbers', 'MARC file with call numbers') { |v| options[:marc_file] = v }
 
   end.parse!
 
@@ -87,6 +88,22 @@ module DltsPublisher
    @need_category=true
   end
 
+  @marc_file_mapping=nil
+  @marc_file_path=nil
+
+  if(options[:marc_file]!=nil)
+    @marc_file_mapping=options[:marc_file].split(",")[0]
+    @marc_file_path=options[:marc_file].split(",")[1]
+    if !File.exist?(@marc_file_mapping)
+      puts "The file with mapping #{@marc_file_mapping} doesn't exist"
+      exit
+    end
+    if !File.exist?(@marc_file_path)
+      puts "The directory with MARC files #{@marc_file_path} doesn't exist"
+      exit
+    end
+  end
+    
   @ies=[]
 
   if(options[:ie_file]!=nil)
@@ -238,7 +255,7 @@ module DltsPublisher
                                      :publication_location=>@drupal_doc.drupal_field("Place of Publication",@mods_doc.get_publication_location(@mods_doc_xml, @script), "text_textfield","field_publication_location"),
                                      :publication_date_text=>@drupal_doc.drupal_field("Date of Publication",@pub_date_string, "date_text","field_publication_date_text"),
                                      :publication_date=>@drupal_doc.drupal_field("Date of Publication",@mods_doc.get_pub_date(@pub_date_string,@mods_doc_xml), "date_text","field_publication_date"),
-                                     :topic=>@drupal_doc.drupal_field_array("Topic",@mods_doc.get_topic(@mods_doc_xml, @script,@need_category), "text_textfield","field_topic"),
+                                     :topic=>@drupal_doc.drupal_field_array("Topic",@mods_doc.get_topic(@mods_doc_xml, @script,@need_category,@marc_file_mapping,@marc_file_path,@book_id), "text_textfield","field_topic"),
                                      :collection=>@drupal_doc.drupal_field_array("Collection",@mods_doc.get_collection(@collection_id,@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_collection"),
                                      :partner=>@drupal_doc.drupal_field_array("Partner",@mods_doc.get_partner(@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_partner"),
                                      :handle=>@drupal_doc.drupal_field("Permanent Link","http://hdl.handle.net/#{@handle}","link_field","field_handle"),
@@ -247,7 +264,7 @@ module DltsPublisher
                                      :binding_orientation=>@drupal_doc.drupal_field("Binding Orientation",@orientation,"options_buttons","field_read_order"),
                                      :page_count=>@drupal_doc.drupal_field("Read Order",@page_count,"number","field_page_count"),
                                      :sequence_count=>@drupal_doc.drupal_field("Read Order",@page_count,"number","field_sequence_count"),
-                                     :call_number=>@drupal_doc.drupal_field("Call Number",@mods_doc.get_call_number(@mods_doc_xml, @script),"text_textfield","field_call_number"),
+                                     :call_number=>@drupal_doc.drupal_field("Call Number",@mods_doc.get_call_number(@mods_doc_xml, @script,@marc_file_mapping,@marc_file_path,@book_id),"text_textfield","field_call_number"),
                                      :description=>@drupal_doc.drupal_field("Description",@mods_doc.get_description(@mods_doc_xml, @script),"text_textfield","field_description"),
                                      :identifier=>@drupal_doc.drupal_field("Identifier",@book_id,"text_textfield","field_identifier"),
                                      :language=>@drupal_doc.drupal_field("Language",@mods_doc.get_language(@mods_doc_xml),"text_textfield","field_language"),

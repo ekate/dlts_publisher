@@ -111,7 +111,7 @@ class MetadataJson
   end
 
   def get_description(mods_doc, script)
-    xpath="//abstract"
+    xpath="//abstract1"
     mods_doc.xpath("#{xpath}/text()").to_s
   end
 
@@ -232,7 +232,8 @@ class MetadataJson
           @lcc_cat_ar=eval(File.read("category_hashes/lcc_cat_ar"))
         end
         xpath="//classification[\@authority='lcc']"
-        call_number=mods_doc.xpath("#{xpath}/text()")[1]
+        call_number=mods_doc.xpath("#{xpath}/text()").to_s
+        puts "call number lcc #{call_number}"
         if(call_number.nil?||call_number.empty?)
           call_number=get_call_number_from_marc(marc_file_mapping,marc_file_path,book_id)
         end

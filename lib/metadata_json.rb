@@ -96,11 +96,10 @@ class MetadataJson
        marc_files=line.split(" ")
        if(marc_files.include?(book_id))
          marc_file_full_path=marc_file_path+"/NjP_"+marc_files[0]+"_marcxml.xml"
-         puts marc_file_full_path
          if(File.exist?(marc_file_full_path))
            marc_xml = Nokogiri::XML.parse(File.open(marc_file_full_path)).remove_namespaces! 
-           xpath="//datafield[\@tag='852']/subfield[\@code="
-           call_numbe=marc_xml.xpath("#{xpath}'h']/text()")+marc_xml.xpath("#{xpath}'i']/text()")
+           xpath="//datafield[@tag='852']/subfield[@code="
+           call_number=marc_xml.xpath("#{xpath}'h']/text()").to_s+" "+marc_xml.xpath("#{xpath}'i']/text()").to_s
          else
           puts "Marc file is missing" 
          end
@@ -234,12 +233,12 @@ class MetadataJson
         xpath="//classification[\@authority='lcc']"
         call_number=mods_doc.xpath("#{xpath}/text()").to_s
         puts "call number lcc #{call_number}"
-        if(call_number.nil?||call_number.empty?)
+        if((call_number.nil?||call_number.empty?)&&marc_file_mapping!=nil)
           call_number=get_call_number_from_marc(marc_file_mapping,marc_file_path,book_id)
         end
         puts "call number lcc #{call_number}"
         if(!call_number.nil?&&!call_number.empty?)
-          topic=topic_lcc_lookup(call_number, script)
+          topic=topic_lcc_lookup(call_number[0], script)
         else
           xpath="//classification[\@authority='ddc']"
           call_number=mods_doc.xpath("#{xpath}/text()").to_s
@@ -249,6 +248,7 @@ class MetadataJson
           end
        end
      end
+    puts "topic #{topic} #{book_id} #{call_number}"
     return topic 
   end
   
@@ -271,11 +271,11 @@ class MetadataJson
   end
  
   def topic_lcc_lookup(first_letter, script)
-     topic=""
+     topic=[]
      if(script=='Latn')
-        topic=@lcc_cat_en[first_letter] 
+        topic[0]=@lcc_cat_en[first_letter] 
      else 
-        topic=@lcc_cat_ar[first_letter] 
+        topic[0]=@lcc_cat_ar[first_letter] 
      end
      return topic
   end

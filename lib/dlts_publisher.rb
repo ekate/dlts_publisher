@@ -37,6 +37,7 @@ module DltsPublisher
     opts.on('-f', '--ie_file File', 'IE File') { |v| options[:ie_file] = v }
     opts.on('-c', '--collection_id Collection Id', 'Collection id') { |v| options[:collection_id] = v }
     opts.on('-p', '--partner_id Partner Id', 'Partner id') { |v| options[:partner_id] = v }
+    opts.on('-t', '--type Item Type', 'Item Type') { |v| options[:type] = v }
     opts.on('-k', '--category Need Category', 'Need Category') { options[:need_category] = true }
     opts.on('-m', '--category MARC file with Call Numbers', 'MARC file with call numbers') { |v| options[:marc_file] = v }
 
@@ -62,6 +63,8 @@ module DltsPublisher
   @collection_id<< options[:collection_id] unless options[:collection_id]==nil
 
   @partner_id=nil
+
+  @type=options[:type] unless options[:type]==nil
 
   if(options[:partner_id]!=nil)
     @partner_id=options[:partner_id]
@@ -243,7 +246,9 @@ module DltsPublisher
              @entity_language="ar"
            end
            @pub_date_string=@mods_doc.get_pub_date_string(@mods_doc_xml)
-           book_data={ :entity_title=>@mods_doc.get_title(@mods_doc_xml, @script)[0..254],
+           item_data={}
+           if (@type=="book")
+           item_data={ :entity_title=>@mods_doc.get_title(@mods_doc_xml, @script)[0..254],
                        :identifier=>"#{@book_id}",
                        :entity_language=>@entity_language,
                        :entity_status=>"1",
@@ -265,7 +270,6 @@ module DltsPublisher
                                      :page_count=>@drupal_doc.drupal_field("Read Order",@page_count,"number","field_page_count"),
                                      :sequence_count=>@drupal_doc.drupal_field("Read Order",@page_count,"number","field_sequence_count"),
                                      :call_number=>@drupal_doc.drupal_field("Call Number",@mods_doc.get_call_number(@mods_doc_xml, @script,@marc_file_mapping,@marc_file_path,@book_id),"text_textfield","field_call_number"),
-                                     :description=>@drupal_doc.drupal_field("Description",@mods_doc.get_description(@mods_doc_xml, @script),"text_textfield","field_description"),
                                      :identifier=>@drupal_doc.drupal_field("Identifier",@book_id,"text_textfield","field_identifier"),
                                      :language=>@drupal_doc.drupal_field("Language",@mods_doc.get_language(@mods_doc_xml),"text_textfield","field_language"),
                                      :language_code=>@drupal_doc.drupal_field("Language",@mods_doc.get_language_code(@mods_doc_xml),"text_textfield","field_language_code"),
@@ -278,7 +282,44 @@ module DltsPublisher
                        :series=>@mods_doc.get_series(@mods_doc_xml,@collection_id,@partner_id,@book_id,@script,@rstar_username,@rstar_password),
                        :pages=>{:page=>@mods_doc.generate_single_pages(@mets_parser,@book_id)},
                        :stitched=>{:page=>@mods_doc.generate_double_pages(@page_count,@book_id)}}
-
+           end
+           if (@type=="map")
+                 item_data={ :entity_title=>@mods_doc.get_title(@mods_doc_xml, @script)[0..254],
+                             :identifier=>"#{@book_id}",
+                             :entity_language=>@entity_language,
+                             :entity_status=>"1",
+                             :entity_type=>"dlts_map",
+                             :metadata=> { :title=>@drupal_doc.drupal_field("Title",@mods_doc.get_title(@mods_doc_xml, @script),"text_textfield","field_title"),
+                                           :subtitle=>@drupal_doc.drupal_field("Subtitle",@mods_doc.get_subtitle(@mods_doc_xml, @script),"text_textfield","field_subtitle"),
+                                           :author=>@drupal_doc.drupal_field_array("Author/Contributor",@mods_doc.get_authors(@mods_doc_xml, @script), "text_textfield","field_author"),
+                                           :publisher=>@drupal_doc.drupal_field("Publisher",@mods_doc.get_publisher(@mods_doc_xml, @script), "text_textfield","field_publisher"),
+                                           :publication_location=>@drupal_doc.drupal_field("Place of Publication",@mods_doc.get_publication_location(@mods_doc_xml, @script), "text_textfield","field_publication_location"),
+                                           :publication_date_text=>@drupal_doc.drupal_field("Date of Publication",@pub_date_string, "date_text","field_publication_date_text"),
+                                           :publication_date=>@drupal_doc.drupal_field("Date of Publication",@mods_doc.get_pub_date(@pub_date_string,@mods_doc_xml), "date_text","field_publication_date"),
+                                           :collection=>@drupal_doc.drupal_field_array("Collection",@mods_doc.get_collection(@collection_id,@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_collection"),
+                                           :partner=>@drupal_doc.drupal_field_array("Partner",@mods_doc.get_partner(@partner_id,@rstar_username, @rstar_password),"node_reference_autocomplete","field_partner"),
+                                           :handle=>@drupal_doc.drupal_field("Permanent Link","http://hdl.handle.net/#{@handle}","link_field","field_handle"),
+                                           :read_order=>@drupal_doc.drupal_field("Read Order",@read_order,"options_buttons","field_read_order"),
+                                           :scan_order=>@drupal_doc.drupal_field("Scan Order",@scan_order,"options_buttons","field_read_order"),
+                                           :binding_orientation=>@drupal_doc.drupal_field("Binding Orientation",@orientation,"options_buttons","field_read_order"),
+                                           :page_count=>@drupal_doc.drupal_field("Page Count",@page_count,"number","field_page_count"),
+                                           :sequence_count=>@drupal_doc.drupal_field("Page Sequence",@page_count,"number","field_sequence_count"),
+                                           :call_number=>@drupal_doc.drupal_field("Call Number",@mods_doc.get_call_number(@mods_doc_xml, @script,@marc_file_mapping,@marc_file_path,@book_id),"text_textfield","field_call_number"),
+                                           :description=>@drupal_doc.drupal_field("Description",@mods_doc.get_description(@mods_doc_xml, @script),"text_textfield","field_description"),
+                                           :identifier=>@drupal_doc.drupal_field("Identifier",@book_id,"text_textfield","field_identifier"),
+                                           :language=>@drupal_doc.drupal_field("Language",@mods_doc.get_language(@mods_doc_xml),"text_textfield","field_language"),
+                                           :language_code=>@drupal_doc.drupal_field("Language",@mods_doc.get_language_code(@mods_doc_xml),"text_textfield","field_language_code"),
+                                           :pdf_file=>@drupal_doc.drupal_field_array("PDF",["fileserver://books/#{@book_id}/#{@book_id}_hi.pdf","fileserver://books/#{@book_id}/#{@book_id}_lo.pdf" ],"file_generic","field_pdf_filer"),
+                                           :representative_image=>@rep_image,
+                                           :rights=>@drupal_doc.drupal_field("Rights",@rights,"text_textarea","field_rights"),
+                                           :subject=>@drupal_doc.drupal_field_array("Subject",@mods_doc.get_subject(@mods_doc_xml, @script),"taxonomy_autocomplete","field_subject"),
+                                           :physical_description=>@drupal_doc.drupal_field("Physical Description",@mods_doc.get_physical_description(@mods_doc_xml),"text_textfield","field_physical_description"),
+                                           :notes=>@drupal_doc.drupal_field_array("Notes",@mods_doc.get_notes(@mods_doc_xml),"text_textfield","field_notes")
+                             },
+                             :multivolume => {:volume=>@mods_doc.get_multivolume(@id,book[2],book[1],@collection_id,@partner_id,@script,@multi_volume,@rstar_username,@rstar_password)},
+                             :series=>@mods_doc.get_series(@mods_doc_xml,@collection_id,@partner_id,@book_id,@script,@rstar_username,@rstar_password),
+                             :pages=>{:page=>@mods_doc.generate_map_page(@mets_parser,@book_id)}}
+               end
            fJson = File.open("#{@json_dir}/#{@book_id}.#{@entity_language}.json","w")
            fJson.write(book_data.to_json)
            fJson.close

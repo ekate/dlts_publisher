@@ -400,7 +400,7 @@ class MetadataJson
          serieses_str.each do |series|
            series_id=Digest::MD5.hexdigest(series[0])
            if(!series[1].nil?)
-            volume_number=series[1].to_s.gsub(/[no?\.|v\.]/,'').gsub(/\s+/,"") if Float(series[1].gsub(/\s+/,"")) rescue false
+            volume_number = /\d+/.match(series[1])
            end
            data= {
                :identifier => "series_#{book_id}_#{series_id}",

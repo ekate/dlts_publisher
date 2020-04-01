@@ -268,9 +268,13 @@ class MetadataJson
           if(!call_number.nil?&&!call_number.empty?)
             topic=get_topic_from_ddc(call_number, script)
           end
+          if(topic.empty?||topic.nil?)
+             class_value=call_number.split('.')[0]
+             topic=get_topic_from_ddc(class_value, script)
+          end
        end
      end
-    puts "topic #{topic} #{book_id} #{call_number}"
+    puts "topic #{topic} #{book_id} #{call_number} #{class_value}"
     return topic 
   end
   

@@ -90,7 +90,7 @@ module DltsPublisher
   if(options[:need_category]!=nil) 
    @need_category=true
   end
-
+  puts "need category #{@need_category}"
   @marc_file_mapping=nil
   @marc_file_path=nil
 

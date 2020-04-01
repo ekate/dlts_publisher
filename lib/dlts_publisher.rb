@@ -39,7 +39,7 @@ module DltsPublisher
     opts.on('-p', '--partner_id Partner Id', 'Partner id') { |v| options[:partner_id] = v }
     opts.on('-t', '--type Item Type', 'Item Type') { |v| options[:type] = v }
     opts.on('-k', '--category Need Category', 'Need Category') { options[:need_category] = true }
-    opts.on('-m', '--category MARC file with Call Numbers', 'MARC file with call numbers') { |v| options[:marc_file] = v }
+    opts.on('-m', '--marc MARC file with Call Numbers', 'MARC file with call numbers') { |v| options[:marc_file] = v }
 
   end.parse!
 

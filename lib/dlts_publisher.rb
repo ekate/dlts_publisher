@@ -321,11 +321,7 @@ module DltsPublisher
                              :pages=>{:page=>@mods_doc.generate_map_page(@mets_parser,@book_id)}}
                end
            fJson = File.open("#{@json_dir}/#{@book_id}.#{@entity_language}.json","w")
-<<<<<<< HEAD
            fJson.write(item_data.to_json)
-=======
-           fJson.write(item_data_data.to_json)
->>>>>>> 04ce68fa30b77a9b74083e5b3e15cf96f9e75ad0
            fJson.close
            #puts book_data.to_json
        end

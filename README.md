@@ -21,7 +21,7 @@ git_path
 R* username 
 R* password 
 characterset(Latn|Arab)
-* **ie_list**: list of books to be published
+* **ie_list**: list of books to be published, provided in Jira ticket
 * **wip_path**: /path to collection in R*/
 * **git_path**: /path to local copy of github repository/
 * **characterset**: /For Arabic book collection the script runs twice first with Latn parameter then with Arab parameter. For all other books it runs only with Latn parameter/

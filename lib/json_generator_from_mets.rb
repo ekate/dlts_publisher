@@ -61,19 +61,18 @@
     return double_pages
   end
 
-  if ARGV.empty?||ARGV.empty?
-    puts "You need to provide book id e.g. cornell_aco000001, name of your mongo db and names for single and double page collections"
+  if ARGV.empty?||ARGV.size<4
+    puts "You need to provide collection path in Rstar, type e.g. book|map, name of mongodb, file which contains list of books "
     exit
   end
 
-  @book_id=ARGV[0]
-  #mongodb="moddngodb://127.0.0.1:27017/#{ARGV[3]}"
-  #mongodb="mongodb://devdb2.dlib.nyu.edu:27017/drupal"
-  #mongodb="mongodb://stagedb2.dlib.nyu.edu:27017/drupal"
-  #mongodb="mongodb://db2.dlib.nyu.edu:27017/drupal"
-  collection_path=ARGV[1]
-  type=ARGV[2]||"book"
-  db_name=ARGV[3]||"stagedb2"
+
+
+  collection_path=ARGV[0]
+  type=ARGV[1]||"book"
+  db_name=ARGV[2]||"stagedb2"
+  se_file_path=ARG[3]
+
   single_pages_collection="dlts_books_page"
   double_pages_collection="dlts_stitched_books_page"
   map_page_collection="dlts_map_page"
@@ -84,10 +83,31 @@
   end if
 
   mongodb="mongodb://#{db_name}.dlib.nyu.edu:27017/drupal"
-  mets_file="#{collection_path}/#{@book_id}/data/#{@book_id}_mets.xml"
+
+  //iterate over list of books
+
+  @ses=[]
+
+  if !File.exist?(@ie_file_path)
+      puts "The file #{@se_file_path} doesn't exist"
+      exit
+    end
+    se_file=File.open(@ie_file_path).read
+    se_file.gsub!(/\r\n?/, "\n")
+    se_file.each_line do |se_id|
+      @ses<<"#{@collection_path}/wip/se/#{se_id.gsub("\n","")}/data/#{se_id.gsub("\n","")}_mets.xml"
+    end
+  else
+     @ses<<Dir["#{@collection_path}/wip/se/**/data/*mets.xml"]
+  end
+    puts @ses.length
+
+  @ses.each do |book_id|
+
+  mets_file="#{collection_path}/#{book_id}/data/#{book_id}_mets.xml"
 
   if !File.exist?(mets_file)
-    puts "The file #{mets_file} for the book #{@book_id} doesn't exist"
+    puts "The file #{mets_file} for the book #{book_id} doesn't exist"
     exit
   end
   puts mets_file
@@ -106,14 +126,14 @@
     
   double_pages=generate_double_pages(single_pages.last[:sequence].first.to_i)
 #deletes a book from mongo
-  client[:"#{double_pages_collection}"].find(:isPartOf => "#{@book_id}").delete_many
+  client[:"#{double_pages_collection}"].find(:isPartOf => "#{book_id}").delete_many
 #adds single pages
   if(type=="book")
-    client[:"#{single_pages_collection}"].find(:isPartOf => "#{@book_id}").delete_many
+    client[:"#{single_pages_collection}"].find(:isPartOf => "#{book_id}").delete_many
     single_results=client[:"#{single_pages_collection}"].insert_many(single_pages)
   end
   if(type=="map")
-    client[:"#{map_page_collection}"].find(:isPartOf => "#{@book_id}").delete_many
+    client[:"#{map_page_collection}"].find(:isPartOf => "#{book_id}").delete_many
     single_results=client[:"#{map_page_collection}"].insert_many(single_pages)
   end
 #adds double pages
@@ -129,5 +149,4 @@
   else
     puts "There are problems. Report them to Kate"
   end
-
-
+end

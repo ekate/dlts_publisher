@@ -17,9 +17,10 @@ module DltsPublisher
 
   @rstar_password=ARGV[3]
 
-  #@json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
-  @json_dir=ARGV[4]||"/home/dlib/ekatep/books_awdl"
-  #@json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/content_temp"
+  #we have default value for the repo but can change it
+  @json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
+
+
 
   if (ARGV.size<4)
     puts "You must provide collection_path, script(Latin, Arabic, etc), rstar credentials"

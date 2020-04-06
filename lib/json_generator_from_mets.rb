@@ -71,7 +71,7 @@
   collection_path=ARGV[0]
   type=ARGV[1]||"book"
   db_name=ARGV[2]||"stagedb2"
-  se_file_path=ARG[3]
+  se_file_path=ARGV[3]
 
   single_pages_collection="dlts_books_page"
   double_pages_collection="dlts_stitched_books_page"
@@ -84,22 +84,19 @@
 
   mongodb="mongodb://#{db_name}.dlib.nyu.edu:27017/drupal"
 
-  //iterate over list of books
+  #iterate over list of books
 
   @ses=[]
 
-  if !File.exist?(@ie_file_path)
-      puts "The file #{@se_file_path} doesn't exist"
+  if !File.exist?(se_file_path)
+      puts "The file #{se_file_path} doesn't exist"
       exit
     end
-    se_file=File.open(@ie_file_path).read
+    se_file=File.open(se_file_path).read
     se_file.gsub!(/\r\n?/, "\n")
     se_file.each_line do |se_id|
-      @ses<<"#{@collection_path}/wip/se/#{se_id.gsub("\n","")}/data/#{se_id.gsub("\n","")}_mets.xml"
+      @ses<<se_id.gsub("\n","")
     end
-  else
-     @ses<<Dir["#{@collection_path}/wip/se/**/data/*mets.xml"]
-  end
     puts @ses.length
 
   @ses.each do |book_id|

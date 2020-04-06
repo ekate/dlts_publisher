@@ -22,8 +22,8 @@ module DltsPublisher
 
 
 
-  if (ARGV.size<4)
-    puts "You must provide collection_path, script(Latin, Arabic, etc), rstar credentials"
+  if (ARGV.size<5)
+    puts "You must provide collection_path, script(Latin, Arabic, etc), rstar credentials, local repository path"
     exit
   end
 

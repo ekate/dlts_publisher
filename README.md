@@ -1,12 +1,16 @@
-This codebase generates json documents which are then used to create book or map objects in Drupal (CMS which hosts publishing repository).
-It is part of the book publishing workflow.
+This codebase can be used for 2 initial steps in book publication workflow
+1. Generates json documents which are then used to create book or map objects in Drupal (CMS which hosts publishing repository).
+2. Add information about book images to mongodb
+
+After those 2 steps are completed you need to add book json objects to github.  
+
 * [Installation](#script-setup)
 * [Usage ](#calling-the-script-directly)
 
 ## Requirements
 Ruby version 2.1.0
 
-## installation
+## Installation
 * [Install rvm, if is is not present](https://rvm.io/rvm/install)
 *  Clone the [repository](https://github.com/ekate/dlts_publisher) and change to it's root directory `cd dlts_publisher`
 * Install ruby v.2.1.0:
@@ -15,7 +19,19 @@ Ruby version 2.1.0
 * Install bundle: `gem install bundle`
 * Install required gems by running the command: `$ bundle`
 
-## Call script  
+## Usage
+##### Mongodb update
+
+The script requires the following parameters which are provided in a JIRA ticket related to the published batch: 
+
+* **se_list** list of books to be published which is provided in JIRA ticket
+* **wip_path** path to collection in Rstar 
+* **<book | map>** type of object
+* **<database name>** mongodb database name.    
+
+
+ruby lib/json_generator_from_mets.rb  /content/prod/rstar/content/uaena/aco/wip/se book devdb2 ~/auena_se.txt 
+##### JSON generation
 
 The script requires the following parameters which are provided in a JIRA ticket related to the published batch: 
 

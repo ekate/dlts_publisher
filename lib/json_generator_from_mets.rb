@@ -78,7 +78,7 @@
   map_page_collection="dlts_map_page"
 
   if(type!="book"&&type!="map")
-    puts "The type you provided is incorrect. We currently only support books and maps"
+    puts "The type you provided is incorrect. We currently only support book and map"
     exit
   end if
 
@@ -87,6 +87,7 @@
   #iterate over list of books
 
   @ses=[]
+  @book_id=nil
 
   if !File.exist?(se_file_path)
       puts "The file #{se_file_path} doesn't exist"
@@ -101,7 +102,8 @@
 
   @ses.each do |book_id|
 
-  mets_file="#{collection_path}/#{book_id}/data/#{book_id}_mets.xml"
+  @book_id=book_id
+  mets_file="#{collection_path}/wip/se/#{book_id}/data/#{book_id}_mets.xml"
 
   if !File.exist?(mets_file)
     puts "The file #{mets_file} for the book #{book_id} doesn't exist"

@@ -1,7 +1,10 @@
 source 'https://rubygems.org'
-
-gemspec
-gem 'nokogiri'
+ruby '2.4.1'
 gem 'saxerator'
 gem 'faraday'
 gem 'iso-639'
+gem 'minitest'
+gem 'pry'
+gem 'nokogiri'
+gem 'rest-client'
+gem 'mongo'

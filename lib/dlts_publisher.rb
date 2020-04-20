@@ -1,4 +1,3 @@
-require 'dlts_publisher/version'
 require 'rubygems'
 require 'nokogiri'
 require 'json'
@@ -6,6 +5,9 @@ require 'saxerator'
 require 'optparse'
 require_relative '../lib/metadata_json.rb'
 require_relative '../lib/drupal_json.rb'
+require 'yaml'
+require 'pp'
+require 'uri'
 
 module DltsPublisher
 
@@ -13,19 +15,26 @@ module DltsPublisher
 
   @script=ARGV[1]
 
-  @rstar_username=ARGV[2]
-
-  @rstar_password=ARGV[3]
 
   #we have default value for the repo but can change it
-  @json_dir=ARGV[4]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
+  @json_dir=ARGV[2]||"/content/prod/rstar/tmp/repos/dlts_viewer_content/books"
 
 
-
-  if (ARGV.size<5)
-    puts "You must provide collection_path, script(Latin, Arabic, etc), rstar credentials, local repository path"
+  if (ARGV.size<3)
+    puts "You must provide collection_path, script(Latin, Arabic, etc), local repository path"
     exit
   end
+
+  #read credentials from files
+  home  = ENV['HOME']
+  creds_file_path = File.join(home, '.rhs', 'credentials.yml')
+  creds = YAML.load_file(creds_file_path)
+  abort("unable to parse credentials file: #{creds_file_path}") unless creds
+  @rstar_username = creds['user_r']
+  @rstar_password = creds['pass_r']
+  abort('missing username or password') unless @rstar_username && @rstar_password
+  puts "#{@rstar_username}"
+  puts "pass: #{@rstar_password}"
 
   @collection_id=[]
 

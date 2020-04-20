@@ -1,4 +1,5 @@
 require 'open3'
+#require_relative '../lib/encode_rhs.rb'
 #takes in a file of directories
 #
 def help
@@ -11,7 +12,7 @@ end
 def chk_url
   url = ARGV[2]
   if url.nil? || url.empty? 
-    puts "ERROR: please enter prefix "
+    puts "ERROR: please enter url-prefix "
     help
   end
   url
@@ -56,7 +57,7 @@ entries.each{|e|
     local_name = hsh[:noid]
     binding = address
     p "ruby encode_rhs.rb -p #{prefix} -l #{local_name} -b '#{binding}'"
-    stdout,stderr,status = Open3.capture3("ruby encode_rhs.rb -p #{prefix} -l #{local_name} -b '#{binding}'")
+    stdout,stderr,status = Open3.capture3("ruby lib/encode_rhs.rb -p #{prefix} -l #{local_name} -b '#{binding}'")
     if status.success?
        puts "Updated #{stdout.chomp} to point to #{address}"
     else

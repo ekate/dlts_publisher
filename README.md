@@ -1,6 +1,7 @@
 This codebase can be used for 2 initial steps in book publication workflow
 1. Generates json documents which are then used to create book or map objects in Drupal (CMS which hosts publishing repository).
 2. Add information about book images to mongodb
+3. Update handles 
 
 After those 2 steps are completed you need to add book json objects to github.  
 
@@ -13,11 +14,10 @@ Ruby version 2.1.0
 ## Installation
 * [Install rvm, if is is not present](https://rvm.io/rvm/install)
 *  Clone the [repository](https://github.com/ekate/dlts_publisher) and change to it's root directory `cd dlts_publisher`
-* Install ruby v.2.1.0:
-   `$ rvm install ruby-2.1.0`
-* The .ruby-gemset file in the directory will automatically create a gemset
-* Install bundle: `gem install bundle`
-* Install required gems by running the command: `$ bundle`
+* Install ruby v.2.4.0:
+   `$ rvm install ruby-2.4.0`
+* Install bundler: `gem install bundle`
+* Install required gems by running the command: `$ bundle install`
 
 ## Usage
 ##### Mongodb update

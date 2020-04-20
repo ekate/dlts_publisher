@@ -438,8 +438,7 @@ class MetadataJson
        @conn = Faraday.new(:url => 'https://rsbe.dlib.nyu.edu')
        @conn.basic_auth(rstar_username, rstar_password)
        ids.each do |id|
-         puts "api/v0/colls/#{id}"
-         response=@conn.get "api/v0/colls/#{id}"
+         response=@conn.get "api/v0/colls/#{id.strip}"
          col=JSON.parse(response.body).to_hash
          cols<<{
                     :title => "#{col["name"]}",
@@ -457,7 +456,7 @@ class MetadataJson
      def get_partner(partner_id, rstar_username, rstar_password)
        @conn = Faraday.new(:url => 'https://rsbe.dlib.nyu.edu')
        @conn.basic_auth(rstar_username, rstar_password)
-       response=@conn.get "api/v0/partners/#{partner_id}"
+       response=@conn.get "api/v0/partners/#{partner_id.strip}"
        partner=JSON.parse(response.body).to_hash
 
        if partner.has_key?("error")

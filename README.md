@@ -18,7 +18,7 @@ Ruby version 2.1.0
    `$ rvm install ruby-2.4.0`
 * Install bundler: `gem install bundle`
 * Install required gems by running the command: `$ bundle install`
-
+* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)* Create credentials file in ~/.rhs/credentials.yml (ask admin about passwords)
 ## Usage
 ##### Mongodb update
 
@@ -63,29 +63,29 @@ to https://github.com/NYULibraries/dlts_viewer_content
 
  Publish books for ISAW
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/isaw/awdl Latn <R* user name> <R* password> /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -t book -f ~/isaw_batch1.txt `
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/isaw/awdl Latn  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -t book -f ~/isaw_batch1.txt `
 
  Publish books for ACO, generate categories
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/uaena/aco Latn  <R* user name> <R* password>  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/uenm_last.txt -t book -k true`
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/uaena/aco Latn  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/uenm_last.txt -t book -k true`
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/uaena/aco Arab  <R* user name> <R* password>  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/uenm_last.txt -t book -k true`
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/uaena/aco Arab  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/uenm_last.txt -t book -k true`
 
  Publish books for ACO, generate categories using MARC files to get CALL NUMBERS
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/princeton/aco Latn <R* user name> <R* password> /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/prin_10.txt -k true  -m ~/prin_11_bsn.txt,/content/prod/rstar/tmp/rstar/aco-karms/work/NjP/NjP_20190531/marcxml_in`
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/princeton/aco Latn  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/prin_10.txt -k true  -m ~/prin_11_bsn.txt,/content/prod/rstar/tmp/rstar/aco-karms/work/NjP/NjP_20190531/marcxml_in`
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/princeton/aco Arab <R* user name> <R* password> /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/prin_10.txt -k true  -m ~/prin_11_bsn.txt,/content/prod/rstar/tmp/rstar/aco-karms/work/NjP/NjP_20190531/marcxml_in`
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/princeton/aco Arab  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/prin_10.txt -k true  -m ~/prin_11_bsn.txt,/content/prod/rstar/tmp/rstar/aco-karms/work/NjP/NjP_20190531/marcxml_in`
 
  Publish maps
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/fales/io/ Latn <R* user name> <R* password> /content/prod/rstar/tmp/repos/dlts_viewer_content/maps/ -f ~/fales_ie_21_patch -t maps`
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/fales/io/ Latn  /content/prod/rstar/tmp/repos/dlts_viewer_content/maps/ -f ~/fales_ie_21_patch -t maps`
  
  Publish books for ISAW which have additional collection 
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/ifa/egypt/ Latn <R* user name> <R* password> /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/egypt_4.txt -t book -c 126bb8e7-11e0-hgrt-b0b0-6e2c90d2f816` 
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/ifa/egypt/ Latn /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/egypt_4.txt -t book -c 126bb8e7-11e0-hgrt-b0b0-6e2c90d2f816` 
  
  Publish books for ISAW which have provider different from collection partner
  
- `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/isaw/awdl/ Latn <R* user name> <R* password> /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/cin.txt -p d6d2a72a-cfx4-4ab6-9817-950f1a659935`
+ `bundle exec ruby lib/dlts_publisher.rb /content/prod/rstar/content/isaw/awdl/ Latn  /content/prod/rstar/tmp/repos/dlts_viewer_content/books/ -f ~/cin.txt -p d6d2a72a-cfx4-4ab6-9817-950f1a659935`
  
